@@ -37,7 +37,7 @@ class GeminiGrader:
     
     def __init__(self, api_key: Optional[str] = None):
         """Initialize Gemini grader"""
-        HARDCODED_API_KEY = "AIzaSyCVe6Qx3pZWgx9JBljSAr31UnXBGhV0sbg"
+        HARDCODED_API_KEY = "GOOGLE_API_KEY"
         self.api_key = api_key or os.getenv("GOOGLE_API_KEY", HARDCODED_API_KEY)
         self.use_mock = False  # Always use real mode - API key is set
         self.base_url = None  # Will be set after finding working model
