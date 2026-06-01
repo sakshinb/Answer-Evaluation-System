@@ -1,0 +1,241 @@
+Namet Swarup Arjun Divekar
+PLNY 202201040020
+Rollno:- 10
+Div :- B (B1)
+PAGE NO.:
+05
+assignment
+-
+t
+17
+Process
+Allocation
+Max
+Available
+A B C D
+ABC D
+A B C D
+Ро
+0012
+0012
+1520
+P₁
+1000
+1750
+P2
+1354
+2356
+P3
+0632
+0652
+Ру
+0014
+0656
+a.] Matrix need =
+Need.
+Max- Allocation.
+A
+B
+C
+Po
+0
+0
+0
+P₁
+0
+7
+5
+A00
+oh
+D
+P2
+1
+0
+P3
+0
+о
+02
+2
+2
+0
+Pu
+0 6
+4
+2
+b. Safety Algorithm L
+If (Need ≤ Available)
+Lavailable available + allocation
+3
+Po :-
+0000 < 1520
+- true
+:. Available = 1520+ 0012
+S 1532
+P, :-
+0750 51532
+→ false.
+P₂-
+1002 ≤1532
+Truc
+P3-
+Pu -
+:: Available = 1532 + 1354.
+1
+2886
+0020 ≤ 2886
+True
+:: Available = 2886+ 632
+=
+3518
+- Tove
+0642
+≤ 3518
+:: Available = 3518 + 0014.
+3532
+P-
+0750 ≤ 3532
+:: Available =
+- True
+3532 + 1000
+= 4532
+:. System is in safe state.
+•Safe sequence:
+Po, P2, P3, P4, P, )
+.
+1
+1
+C.] Request < Need.
+Given Request 1- P₁ = (0420) 1
+... Request 5 Need
+042050750
+Request & available
+042051520
+quailable = available - request
+o
+3100
+= 1520-0420
+1120
+PAGE NO.:
+Allocation
+=
+Allocation + Request
+=
+1000 to 420
+=
+1520 1420
+Need =
+Need
+-
+Request
+=
+0750-0420
+03 30
+New need Matrix.
+Process
+A
+"
+B
+CD
+рь
+0
+P2
+1
+P3
+Pu
+0
+OOC
+90
+0 0
+0
+3
+3
+0
+0
+0
+02
+2
+2
+0
+0 6
+4
+2
+PAGE NO
+Need
+Available
+Process
+Allocation
+Mant
+Need
+A B C D
+ABCD
+ABCD
+0
+012
+0000
+1100
+ре
+P2
+P3.
+12222
+ре
+1420
+0330
+1359
+1
+02
+0632
+0020
+0014
+0642
+Need ≤ Available
+0000 5 1100.
+Po
+!
+→
+Ime
+: Available
+= Available
++
+allocation
+= 1100 + 00/2
+5 1112
+P₁ :-
+0330 ≤ 1112
+A
+→ F False
+P2
+•
+1002 5 1112
+!-
+> Tave
+:: Available = available + allocation.
+=
+1112 + 1354.
+=
+2466
+P3 :-
+available
+=
+0020<2466
+этже
+available + allocation
+: 2466 +
+0632
+= 21098
+Pui- 0642≤ 21098
+э Тоже
+available = available + allocation
+= 21098+ 0014
+: 2/0/012
+P, :- 0330 < 2101012
+- True
+available
+.
+= available + allocation
+-
+21070 12 + 1420
+3141212
+Safe
+sequence --
+< po, P2, P3, pa, piz.
+PAGE NO.:

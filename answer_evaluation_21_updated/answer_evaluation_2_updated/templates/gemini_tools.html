@@ -1,0 +1,532 @@
+{% extends "base.html" %}
+
+{% block title %}Gemini AI Tools – Model Answer & Rubric Generator{% endblock %}
+
+{% block extra_css %}
+<style>
+  body { background: #f0f4ff; }
+  .hero-banner {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 16px;
+    padding: 2rem 2.5rem;
+    margin-bottom: 2rem;
+  }
+  .hero-banner h2 { font-weight: 700; }
+  .tool-card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,.08);
+    transition: transform .2s;
+  }
+  .tool-card:hover { transform: translateY(-3px); }
+  .card-header-gemini {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border-radius: 16px 16px 0 0 !important;
+    font-weight: 600;
+  }
+  .btn-gemini {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    font-weight: 600;
+    border-radius: 8px;
+  }
+  .btn-gemini:hover { opacity: .9; color: white; }
+  .btn-gemini:disabled { opacity: .6; }
+  .output-box {
+    background: #1e1e2e;
+    color: #cdd6f4;
+    border-radius: 10px;
+    padding: 1.2rem;
+    font-family: 'Courier New', monospace;
+    font-size: .88rem;
+    min-height: 120px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    display: none;
+  }
+  .rubric-table th { background: #667eea; color: white; }
+  .badge-gemini {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    font-size: .75rem;
+    border-radius: 20px;
+    padding: .25rem .7rem;
+  }
+  .badge-mock {
+    background: #ffc107;
+    color: #212529;
+    font-size: .75rem;
+    border-radius: 20px;
+    padding: .25rem .7rem;
+  }
+  .spinner-small {
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,.4);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin .6s linear infinite;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .step-pill {
+    display: inline-block;
+    background: rgba(255,255,255,.2);
+    border-radius: 20px;
+    padding: .2rem .8rem;
+    font-size: .8rem;
+    margin-right: .4rem;
+  }
+  textarea.form-control { resize: vertical; }
+  .criteria-row { border-left: 4px solid #667eea; margin-bottom: .8rem; padding: .7rem; background: #f8f9ff; border-radius: 0 8px 8px 0; }
+  .criteria-row .crit-name { font-weight: 700; color: #4c3d8f; }
+  .level-pill { font-size: .75rem; border-radius: 12px; padding: .15rem .55rem; margin-right: .3rem; display: inline-block; }
+  .level-excellent { background: #d4edda; color: #155724; }
+  .level-good      { background: #cce5ff; color: #004085; }
+  .level-average   { background: #fff3cd; color: #856404; }
+  .level-poor      { background: #f8d7da; color: #721c24; }
+  #rubricRawJson { display: none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+  <!-- Hero -->
+  <div class="hero-banner d-flex align-items-center gap-3">
+    <div style="font-size:3rem;">🤖</div>
+    <div>
+      <h2 class="mb-1">Gemini AI Tools</h2>
+      <p class="mb-0 opacity-75">Auto-generate <strong>Model Answers</strong> &amp; <strong>Grading Rubrics</strong> from your exam questions using Google Gemini.</p>
+      <div class="mt-2">
+        <span class="step-pill">① Enter API Key</span>
+        <span class="step-pill">② Add Questions</span>
+        <span class="step-pill">③ Generate</span>
+        <span class="step-pill">④ Copy to Session</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- API Key Row -->
+  <div class="card tool-card mb-4">
+    <div class="card-body">
+      <h5 class="fw-bold mb-3">🔑 Gemini API Key</h5>
+      <div class="row g-2 align-items-end">
+        <div class="col-md-8">
+          <label class="form-label small text-muted">Your Google Gemini API Key</label>
+          <input type="password" id="apiKeyInput" class="form-control" placeholder="AIza..." autocomplete="off">
+          <small class="text-muted">Get your key from <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a>. Never shared with anyone.</small>
+        </div>
+        <div class="col-md-4">
+          <button class="btn btn-outline-secondary w-100" onclick="testConnection()">
+            🔌 Test Connection
+          </button>
+        </div>
+      </div>
+      <div id="connectionStatus" class="mt-2" style="display:none;"></div>
+    </div>
+  </div>
+
+  <!-- Questions -->
+  <div class="card tool-card mb-4">
+    <div class="card-body">
+      <h5 class="fw-bold mb-3">📝 Exam Questions</h5>
+      <p class="text-muted small">Enter one question per line. Both tools below will use these questions.</p>
+      <textarea id="questionsInput" class="form-control" rows="5"
+        placeholder="e.g.
+1. Explain the role of an operating system in managing processes.
+2. What is virtual memory and why is it important?
+3. Describe the functions of the file system in an OS."></textarea>
+      <div class="mt-2 d-flex align-items-center gap-3">
+        <div>
+          <label class="form-label small text-muted mb-0">Max Marks per Question</label>
+          <input type="number" id="maxMarksInput" class="form-control form-control-sm" value="10" min="1" max="100" style="width:90px;">
+        </div>
+        <div class="mt-3">
+          <span class="badge bg-secondary" id="questionCount">0 questions</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+
+    <!-- ===== MODEL ANSWER PANEL ===== -->
+    <div class="col-lg-6">
+      <div class="card tool-card h-100">
+        <div class="card-header card-header-gemini">
+          📄 Model Answer Generator
+        </div>
+        <div class="card-body d-flex flex-column">
+          <p class="text-muted small">Gemini will generate an ideal, comprehensive answer for your questions. Use it as the reference answer for grading.</p>
+          <button class="btn btn-gemini mb-3" onclick="generateModelAnswer()" id="btnModelAnswer">
+            ✨ Generate Model Answer
+          </button>
+
+          <div id="modelAnswerStatus" class="mb-2" style="display:none;"></div>
+
+          <!-- Output -->
+          <div id="modelAnswerResult" style="display:none; flex:1;">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="fw-semibold small">Generated Model Answer</span>
+              <div class="d-flex gap-2">
+                <span id="modelAnswerBadge"></span>
+                <button class="btn btn-sm btn-outline-secondary" onclick="copyModelAnswer()">📋 Copy</button>
+              </div>
+            </div>
+            <div class="output-box" id="modelAnswerText" style="display:block;"></div>
+
+            <!-- Apply to session -->
+            <div class="mt-3 p-3 rounded" style="background:#eef2ff;">
+              <p class="small mb-2 fw-semibold">💡 Apply to Grading Session</p>
+              <div class="input-group input-group-sm">
+                <input type="text" id="modelAnswerSessionId" class="form-control" placeholder="Session ID (from grading session)">
+                <button class="btn btn-outline-primary" onclick="applyModelAnswerToSession()">Apply</button>
+              </div>
+              <small class="text-muted">This will set the model answer as reference text for the session's grading.</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== RUBRIC PANEL ===== -->
+    <div class="col-lg-6">
+      <div class="card tool-card h-100">
+        <div class="card-header card-header-gemini">
+          📊 Rubric Generator
+        </div>
+        <div class="card-body d-flex flex-column">
+          <p class="text-muted small">Gemini will create a structured, detailed grading rubric with criteria, marks, keywords, and performance levels.</p>
+          <button class="btn btn-gemini mb-3" onclick="generateRubric()" id="btnRubric">
+            🎯 Generate Rubric
+          </button>
+
+          <div id="rubricStatus" class="mb-2" style="display:none;"></div>
+
+          <!-- Output -->
+          <div id="rubricResult" style="display:none; flex:1;">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="fw-semibold small">Generated Rubric</span>
+              <div class="d-flex gap-2">
+                <span id="rubricBadge"></span>
+                <button class="btn btn-sm btn-outline-secondary" onclick="copyRubricJson()">📋 Copy JSON</button>
+                <button class="btn btn-sm btn-outline-success" onclick="toggleRawJson()">{ } Raw</button>
+              </div>
+            </div>
+
+            <!-- Visual rubric -->
+            <div id="rubricVisual"></div>
+
+            <!-- Raw JSON toggle -->
+            <div class="output-box mt-2" id="rubricRawJson"></div>
+
+            <!-- Apply to session -->
+            <div class="mt-3 p-3 rounded" style="background:#eef2ff;">
+              <p class="small mb-2 fw-semibold">💡 Apply to Grading Session</p>
+              <div class="input-group input-group-sm">
+                <input type="text" id="rubricSessionId" class="form-control" placeholder="Session ID (from grading session)">
+                <button class="btn btn-outline-primary" onclick="applyRubricToSession()">Apply</button>
+              </div>
+              <small class="text-muted">This will set the generated rubric for the session.</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /row -->
+
+  <!-- Integration Guide -->
+  <div class="card tool-card mt-4">
+    <div class="card-body">
+      <h5 class="fw-bold mb-3">🔧 How to Integrate in Your Grading Flow</h5>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <div class="p-3 rounded" style="background:#f0f4ff; border-left:4px solid #667eea;">
+            <div class="fw-bold mb-1">Step 1 — Generate</div>
+            <small class="text-muted">Enter your Gemini API key and exam questions here. Click "Generate Model Answer" and "Generate Rubric".</small>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="p-3 rounded" style="background:#f0f4ff; border-left:4px solid #667eea;">
+            <div class="fw-bold mb-1">Step 2 — Apply to Session</div>
+            <small class="text-muted">Go to your grading session, copy the Session ID, and paste it here. Click "Apply" to push model answer / rubric to that session.</small>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="p-3 rounded" style="background:#f0f4ff; border-left:4px solid #667eea;">
+            <div class="fw-bold mb-1">Step 3 — Grade</div>
+            <small class="text-muted">Run "Gemini-Enhanced Grading" in your session. The system will compare student answers against Gemini's model answer using the generated rubric.</small>
+          </div>
+        </div>
+      </div>
+
+      <hr class="my-3">
+      <p class="mb-1 fw-semibold small">📡 API Endpoints (for developers):</p>
+      <code class="d-block bg-light p-2 rounded small">
+        POST /generate_model_answer &nbsp;→ { questions, rubric_criteria, api_key }<br>
+        POST /generate_rubric &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ { questions, max_marks, api_key }
+      </code>
+    </div>
+  </div>
+
+</div><!-- /container -->
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let lastModelAnswer = '';
+let lastRubric = null;
+
+// Live question count
+document.getElementById('questionsInput').addEventListener('input', updateQuestionCount);
+function updateQuestionCount() {
+  const lines = document.getElementById('questionsInput').value
+    .split('\n').map(l => l.trim()).filter(l => l.length > 2);
+  document.getElementById('questionCount').textContent = lines.length + ' question' + (lines.length !== 1 ? 's' : '');
+}
+
+function getQuestions() {
+  return document.getElementById('questionsInput').value
+    .split('\n')
+    .map(l => l.trim().replace(/^\d+[\.\)]\s*/, ''))
+    .filter(l => l.length > 2);
+}
+
+function getApiKey() {
+  return document.getElementById('apiKeyInput').value.trim();
+}
+
+function showStatus(elementId, msg, type='info') {
+  const el = document.getElementById(elementId);
+  const colors = { info:'#0dcaf0', success:'#198754', danger:'#dc3545', warning:'#ffc107' };
+  el.style.display = 'block';
+  el.innerHTML = `<div class="alert alert-${type} py-2 mb-0 small">${msg}</div>`;
+}
+
+// ─── TEST CONNECTION ─────────────────────────────────────────────────────────
+async function testConnection() {
+  const key = getApiKey();
+  showStatus('connectionStatus', '🔌 Testing connection...', 'info');
+  try {
+    const res = await fetch('/test_gemini_connection', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ api_key: key })
+    });
+    const data = await res.json();
+    if (data.gemini_available) {
+      showStatus('connectionStatus', '✅ ' + data.message, 'success');
+    } else {
+      showStatus('connectionStatus', '⚠️ ' + data.message + ' (will use mock mode)', 'warning');
+    }
+  } catch(e) {
+    showStatus('connectionStatus', '❌ Request failed: ' + e.message, 'danger');
+  }
+}
+
+// ─── GENERATE MODEL ANSWER ───────────────────────────────────────────────────
+async function generateModelAnswer() {
+  const questions = getQuestions();
+  if (!questions.length) {
+    showStatus('modelAnswerStatus', '⚠️ Please enter at least one question.', 'warning');
+    return;
+  }
+
+  const btn = document.getElementById('btnModelAnswer');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-small"></span> Generating...';
+  showStatus('modelAnswerStatus', '🤖 Asking Gemini to generate a model answer...', 'info');
+  document.getElementById('modelAnswerResult').style.display = 'none';
+
+  try {
+    const res = await fetch('/generate_model_answer', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        api_key: getApiKey(),
+        questions: questions,
+        rubric_criteria: {}
+      })
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      lastModelAnswer = data.model_answer;
+      document.getElementById('modelAnswerText').textContent = data.model_answer;
+      document.getElementById('modelAnswerBadge').innerHTML =
+        data.gemini_used
+          ? '<span class="badge-gemini">✨ Gemini AI</span>'
+          : '<span class="badge-mock">🔧 Mock Mode</span>';
+      document.getElementById('modelAnswerResult').style.display = 'flex';
+      document.getElementById('modelAnswerResult').style.flexDirection = 'column';
+      showStatus('modelAnswerStatus', `✅ Model answer generated for ${data.questions_count} question(s).`, 'success');
+    } else {
+      showStatus('modelAnswerStatus', '❌ ' + data.message, 'danger');
+    }
+  } catch(e) {
+    showStatus('modelAnswerStatus', '❌ Request failed: ' + e.message, 'danger');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '✨ Generate Model Answer';
+  }
+}
+
+function copyModelAnswer() {
+  if (!lastModelAnswer) return;
+  navigator.clipboard.writeText(lastModelAnswer).then(() => {
+    showStatus('modelAnswerStatus', '📋 Model answer copied to clipboard!', 'success');
+  });
+}
+
+// ─── APPLY MODEL ANSWER TO SESSION ───────────────────────────────────────────
+async function applyModelAnswerToSession() {
+  const sessionId = document.getElementById('modelAnswerSessionId').value.trim();
+  if (!sessionId) { alert('Please enter a Session ID.'); return; }
+  if (!lastModelAnswer) { alert('Generate a model answer first.'); return; }
+
+  try {
+    // Use set_questions endpoint with the model answer as a single "question block"
+    // More accurately: set reference text via a custom approach (store in rubric notes)
+    const res = await fetch(`/set_rubric/${sessionId}`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ rubric: { model_answer_reference: lastModelAnswer } })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showStatus('modelAnswerStatus', `✅ Model answer applied to session ${sessionId.slice(0,8)}...`, 'success');
+    } else {
+      showStatus('modelAnswerStatus', '❌ ' + data.message, 'danger');
+    }
+  } catch(e) {
+    showStatus('modelAnswerStatus', '❌ ' + e.message, 'danger');
+  }
+}
+
+// ─── GENERATE RUBRIC ─────────────────────────────────────────────────────────
+async function generateRubric() {
+  const questions = getQuestions();
+  if (!questions.length) {
+    showStatus('rubricStatus', '⚠️ Please enter at least one question.', 'warning');
+    return;
+  }
+
+  const maxMarks = parseInt(document.getElementById('maxMarksInput').value) || 10;
+  const btn = document.getElementById('btnRubric');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-small"></span> Generating...';
+  showStatus('rubricStatus', '🤖 Asking Gemini to generate a rubric...', 'info');
+  document.getElementById('rubricResult').style.display = 'none';
+
+  try {
+    const res = await fetch('/generate_rubric', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ api_key: getApiKey(), questions: questions, max_marks: maxMarks })
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      lastRubric = data.rubric;
+      renderRubric(data.rubric);
+      document.getElementById('rubricRawJson').textContent = JSON.stringify(data.rubric, null, 2);
+      document.getElementById('rubricBadge').innerHTML =
+        data.gemini_used
+          ? '<span class="badge-gemini">✨ Gemini AI</span>'
+          : '<span class="badge-mock">🔧 Mock Mode</span>';
+      document.getElementById('rubricResult').style.display = 'flex';
+      document.getElementById('rubricResult').style.flexDirection = 'column';
+      showStatus('rubricStatus', `✅ Rubric generated for ${data.questions_count} question(s). Total marks: ${data.rubric.total_marks}`, 'success');
+    } else {
+      showStatus('rubricStatus', '❌ ' + data.message, 'danger');
+    }
+  } catch(e) {
+    showStatus('rubricStatus', '❌ Request failed: ' + e.message, 'danger');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '🎯 Generate Rubric';
+  }
+}
+
+function renderRubric(rubric) {
+  const container = document.getElementById('rubricVisual');
+  if (!rubric || !rubric.criteria) { container.innerHTML = '<p class="text-muted">No criteria found.</p>'; return; }
+
+  let html = `<div class="mb-2 small text-muted">📌 ${rubric.general_instructions || ''}</div>`;
+  html += `<div class="mb-2"><strong>Total Marks: ${rubric.total_marks}</strong></div>`;
+
+  for (const c of rubric.criteria) {
+    const kws = (c.keywords || []).map(k => `<code>${k}</code>`).join(' ');
+    const levels = c.performance_levels || {};
+    html += `
+      <div class="criteria-row">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <span class="crit-name">${c.name}</span>
+            <small class="text-muted ms-2">— ${c.description}</small>
+          </div>
+          <span class="badge bg-primary ms-2">${c.max_marks} marks</span>
+        </div>
+        <div class="mt-1 small">${kws}</div>
+        <div class="mt-2 small">
+          ${levels.excellent ? `<span class="level-pill level-excellent">Excellent: ${levels.excellent}</span>` : ''}
+          ${levels.good      ? `<span class="level-pill level-good">Good: ${levels.good}</span>` : ''}
+          ${levels.average   ? `<span class="level-pill level-average">Average: ${levels.average}</span>` : ''}
+          ${levels.poor      ? `<span class="level-pill level-poor">Poor: ${levels.poor}</span>` : ''}
+        </div>
+      </div>`;
+  }
+  container.innerHTML = html;
+}
+
+function toggleRawJson() {
+  const el = document.getElementById('rubricRawJson');
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function copyRubricJson() {
+  if (!lastRubric) return;
+  navigator.clipboard.writeText(JSON.stringify(lastRubric, null, 2)).then(() => {
+    showStatus('rubricStatus', '📋 Rubric JSON copied to clipboard!', 'success');
+  });
+}
+
+// ─── APPLY RUBRIC TO SESSION ──────────────────────────────────────────────────
+async function applyRubricToSession() {
+  const sessionId = document.getElementById('rubricSessionId').value.trim();
+  if (!sessionId) { alert('Please enter a Session ID.'); return; }
+  if (!lastRubric) { alert('Generate a rubric first.'); return; }
+
+  // Convert rubric criteria to flat dict for the set_rubric endpoint
+  const rubricDict = {};
+  if (lastRubric.criteria) {
+    for (const c of lastRubric.criteria) {
+      rubricDict[c.name] = c.description + ` (${c.max_marks} marks). Keywords: ${(c.keywords||[]).join(', ')}`;
+    }
+  }
+  rubricDict['_gemini_rubric_full'] = JSON.stringify(lastRubric);
+
+  try {
+    const res = await fetch(`/set_rubric/${sessionId}`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ rubric: rubricDict })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showStatus('rubricStatus', `✅ Rubric applied to session ${sessionId.slice(0,8)}...`, 'success');
+    } else {
+      showStatus('rubricStatus', '❌ ' + data.message, 'danger');
+    }
+  } catch(e) {
+    showStatus('rubricStatus', '❌ ' + e.message, 'danger');
+  }
+}
+</script>
+{% endblock %}

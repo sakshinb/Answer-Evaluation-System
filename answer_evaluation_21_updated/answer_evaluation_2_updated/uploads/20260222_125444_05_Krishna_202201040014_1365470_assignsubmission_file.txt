@@ -1,0 +1,154 @@
+013
+Name: Krishree Raut
+Rollro: 6
+Div: B
+PRN: 202201040014
+OS Assignment'
+M
+T
+W
+T
+F
+S S
+Page No.:
+YOUVA
+Date:
+Key similarities Between windows and linux
+(a)
+@ Process Management; Both operating system marage processes by
+allocating CPU time, memory, and other resources to active
+application.
+6) Memory management; They both use virtual memory to extend
+physical memory and ensure that
+and ensure that processes do not interfere wit
+each others memory space.
+Ⓒ File
+Management system: Windows and linux both
+monage File
+through hierarchial .File systems, organize data into
+directories and files.
+d) Scarsity muragement; Both systems implerent security
+features such as uses authentication, access control, and
+encryption to protect the system from unauthorized access
+e) Uses interface. : Both windows and linuse provide
+graphical user interface (GUI) for uses infection. The
+GUS allows the uses to intract with the system throu
+and other visual elements.
+a
+icors
+Cita
+menus
+Key Diff exences Between operating systems
+a) Uses permission and security: windows implement a uses
+privilege model with an emphasis on exces-friendly marginal
+Whereas
+linux offers more minute control over uses
+permissions with
+Stronges focus
+focus on security.
+(b) Customization and flexibility: windows offer a limited
+Customization options, out of the box custorizations requil.
+extra Softwares, where linux is highly customizable, from
+the desktop environment to the Uses - interface.
+I vies reviews: windows is for as
+Uses
+wes friendly and
+average users; its
+easy
+до ше
+ナ
+where liner is highly
+as torizable and is preferred by more tech savvy wers
+and open-source softwares.
+who value security
+M T W
+Page No.:
+Date:
+YOUVA
+82] The bootloader is a
+system boot process
+coitical component in the operating.
+It acts as a mediator between the
+systems firmware and the operating system. The bost loader's.
+primary Furetions include: & i) loading the operating system kerrel.
+11) Initializing System Hardware.
+iii) providity a uses interface for OS Selection.
+iv) chain loading'
+Comparison of LILO (Linux loades) and winderus bout
+Marages.
+D LILO
+Advantages:
+a) Simplicity: LILO is straight forward to configure, with a
+simple text-based configuration. Its easy to install and
+maintaini
+b) Reliability: Once installed, LILO is very stable and
+performs well with minimal maintenence.
+O speed.
+: LILO is fast in its bout process since it lacks
+the graphical menu,
+Disadvantages:
+as limited
+9) Lack of flexibility: LILO does not support as many
+filesystems or operating systems its usage
+b) Srutic
+९
+Configuration:
+,
+tion:: LILO must be reinstalled every
+which makes it a tiresome proces.
+1. bout
+Live changes
+are made
+graphical interface: L2LO lacks a
+which can make it look less uses friendly.
+C) No.
+prene
+graphical.
+on.
+1
+1
+M
+Page No.:
+W
+Date:
+YOUVA
+2. Windows Bout
+Advantages:
+Marages :
+seamless.
+a) Integration with windows: Windows Boot manager is tightl
+integrated a with the windows os, providing
+booting process.
+b) Ease of use: The windorus bout
+is uses friendly
+bout co.
+moreges
+maraging
+with simple options from for ma
+configuration
+Ⓒ Compatibility. It is optimized for the
+· It is optimized for the usage in the window
+ops OS which makes it the best choice for windows.
+users.
+Pisadvantages;
+a) limited flexibility: Windows Boot Marages &
+Flexible as
+LILO in terms of busting.
+rot as
+ron-window .OS.
+b) No graphical menu for Non-window Us: The post menu is
+simple and designed mainly for windows, with limited
+options for asto mizing or booting.
+booting ron- windows os.
+c) Dependency an windours: It is highly depended on the
+windows installation, a corruption
+issues which are difficult to resolve.
+Piagram:
+can cause .booting
+Power ON
+> Rom Code
+•Routing Nevice)
+Bootloades
+Kiare
+J
+Opexiting systemon)

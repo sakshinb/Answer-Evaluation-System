@@ -1,0 +1,124 @@
+Name: Shivam Pokharkar
+PRN: 202201040078
+classmate
+Dals
+Pags
+Roll: 40
+Diy: B
+OS - Assignmit |
+6159
+叮
+•
+Q1] key similarites and difference bitimits
+Criteria
+Linaat
+Macos
+for Similarity
+Kernal Type Monolithic kernel Hybrid Kernal Both uses
+a unix basel
+Licensing,
+topom kernal design
+:JU blthough their
+type differnt
+Open source under Proprietary Both have
+GNU General Software roots in open
+Public Licence owned by
+Source Softwer
+gums Apple
+ALW
+User Inter Diverse GUI.
+Consistent
+face
+Avalable ex.
+Gnome, KDE
+GUT
+Components
+Both
+have
+E
+and polished GUI as
+Comma-line offeres powerfer offers ter
+interface CJ, eg. minat app
+Bash, 2sh
+2sha-
+(CLI)
+Lood
+designed for
+tta usablity
+Both support
+advanced
+CLI
+Hardware Supports a wide Exclusive to Both are opti-
+Compatibility rang of handoure apple hard
+ware
+plat forms including Gorary
+desktops Sericers, te
+292 20
+mized for
+their encluste
+hardware
+environmet
+Q2] =>
+•Functions of
+Bootloaders
+vidite
+Pate,
+Page
+31
+i) loads os kemal: finds and loads.
+"memay to start
+ii) initializes Harddware:-
+the os
+Os kernal inte
+nut Hound Linda sets cip essential hard were
+CCPU, memory, peripherals) for
+Components.
+Os managemet
+'til) Provides UT:
+offers
+menu to
+Choose diffent
+Operating systems.
+or
+kernal Version in multi
+boot setup
+iv) passes kernal Parameters:
+to
+Allows
+Custom. Kernal parameters
+modify startup behaviour (eg. safe
+mode, debugging)
+dball
+• Boot lauder Comparasion
+6
+Bootloader
+GRUB
+ULO
+Advantages
+disadvantages
+-Supports multiple - Complex setup for
+Os and filesystem beginners
+-
+Dynamic configu - Largex Size Can
+ration on
+editing
+Advanced Cl
+Slow boat
+simple and fast. -Limited file system.
+Small footprint &
+Support, requires
+Suitable por singic reinstallation after
+OS Setups
+configuration change
+Date
+Page
+windows Bout -integrated with
+Manager
+windows.
+limited to
+booting windows
+- provides attom- primarily
+etic recovery
+tools
+-less. Customizable
+then GRUB

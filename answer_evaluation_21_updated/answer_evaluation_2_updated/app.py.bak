@@ -1,0 +1,746 @@
+"""
+Flask Web Application for Advanced Grading System
+Provides a user-friendly interface for PDF upload, grading, and feedback
+"""
+
+import os
+import json
+import uuid
+import tempfile
+from datetime import datetime
+from typing import Dict, List, Optional
+import logging
+
+from flask import Flask, render_template, request, jsonify, send_file, flash, redirect, url_for
+from werkzeug.utils import secure_filename
+import pandas as pd
+
+# Import our grading system components
+from grading_system import AdvancedGradingSystem
+from minimal_preprocessor import MinimalPreprocessor
+from modules.gemini_grader import GeminiGrader
+
+# Setup logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Initialize Flask app
+app = Flask(__name__)
+app.secret_key = 'advanced_grading_system_secret_key_2024'
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+
+# Configuration
+UPLOAD_FOLDER = 'uploads'
+RESULTS_FOLDER = 'results'
+ALLOWED_EXTENSIONS = {'pdf', 'txt'}
+
+# Create necessary directories
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(RESULTS_FOLDER, exist_ok=True)
+
+# Global variables for session management
+grading_sessions = {}
+
+class GradingSession:
+    """Manages a grading session with uploaded files and configuration"""
+    
+    def __init__(self, session_id: str):
+        self.session_id = session_id
+        self.created_at = datetime.now()
+        self.uploaded_files = []
+        self.questions = []
+        self.rubric = {}
+        self.grading_config = {
+            'semantic_weight': 0.30,
+            'rubric_weight': 0.25,
+            'grammar_weight': 0.20,
+            'factual_weight': 0.15,
+            'completeness_weight': 0.10
+        }
+        self.results = []
+        self.status = 'initialized'
+        
+    def add_file(self, filename: str, filepath: str, file_type: str):
+        """Add an uploaded file to the session"""
+        self.uploaded_files.append({
+            'filename': filename,
+            'filepath': filepath,
+            'file_type': file_type,
+            'uploaded_at': datetime.now().isoformat()
+        })
+        
+    def set_questions(self, questions: List[str]):
+        """Set the questions for grading"""
+        self.questions = questions
+        
+    def set_rubric(self, rubric: Dict):
+        """Set the rubric for grading"""
+        self.rubric = rubric
+        
+    def update_config(self, config: Dict):
+        """Update grading configuration"""
+        self.grading_config.update(config)
+
+def allowed_file(filename):
+    """Check if file extension is allowed"""
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def extract_text_from_pdf(pdf_path: str) -> str:
+    """Extract text from PDF using available methods"""
+    try:
+        # Try using PyPDF2 first
+        import PyPDF2
+        with open(pdf_path, 'rb') as file:
+            pdf_reader = PyPDF2.PdfReader(file)
+            text = ""
+            for page in pdf_reader.pages:
+                text += page.extract_text() + "\n"
+        return text
+    except ImportError:
+        try:
+            # Fallback to pdfplumber
+            import pdfplumber
+            with pdfplumber.open(pdf_path) as pdf:
+                text = ""
+                for page in pdf.pages:
+                    text += page.extract_text() + "\n"
+            return text
+        except ImportError:
+            # Final fallback - return error message
+            return "Error: No PDF processing library available. Please install PyPDF2 or pdfplumber."
+
+@app.route('/')
+def index():
+    """Main page"""
+    return render_template('index.html')
+
+@app.route('/new_session', methods=['POST'])
+def new_session():
+    """Create a new grading session"""
+    session_id = str(uuid.uuid4())
+    grading_sessions[session_id] = GradingSession(session_id)
+    
+    return jsonify({
+        'success': True,
+        'session_id': session_id,
+        'message': 'New grading session created'
+    })
+
+@app.route('/upload_files/<session_id>', methods=['POST'])
+def upload_files(session_id):
+    """Upload PDF files for grading"""
+    if session_id not in grading_sessions:
+        return jsonify({'success': False, 'message': 'Invalid session ID'})
+    
+    session = grading_sessions[session_id]
+    
+    if 'files' not in request.files:
+        return jsonify({'success': False, 'message': 'No files provided'})
+    
+    files = request.files.getlist('files')
+    uploaded_count = 0
+    errors = []
+    
+    logger.info(f"Processing {len(files)} files for session {session_id}")
+    
+    for file in files:
+        if file and file.filename:
+            logger.info(f"Processing file: {file.filename}")
+            
+            if allowed_file(file.filename):
+                try:
+                    filename = secure_filename(file.filename)
+                    # Add timestamp to avoid conflicts
+                    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+                    filename = f"{timestamp}_{filename}"
+                    filepath = os.path.join(UPLOAD_FOLDER, filename)
+                    
+                    file.save(filepath)
+                    file_type = 'pdf' if filename.lower().endswith('.pdf') else 'txt'
+                    session.add_file(file.filename, filepath, file_type)
+                    uploaded_count += 1
+                    logger.info(f"Successfully uploaded: {file.filename}")
+                except Exception as e:
+                    error_msg = f"Failed to save {file.filename}: {str(e)}"
+                    errors.append(error_msg)
+                    logger.error(error_msg)
+            else:
+                error_msg = f"File type not allowed: {file.filename}"
+                errors.append(error_msg)
+                logger.warning(error_msg)
+        else:
+            errors.append("Empty file or no filename")
+    
+    if uploaded_count > 0:
+        message = f'Uploaded {uploaded_count} files successfully'
+        if errors:
+            message += f'. {len(errors)} files had errors.'
+        
+        return jsonify({
+            'success': True,
+            'message': message,
+            'files_count': len(session.uploaded_files),
+            'uploaded_count': uploaded_count,
+            'errors': errors
+        })
+    else:
+        return jsonify({
+            'success': False, 
+            'message': f'No files uploaded. Errors: {"; ".join(errors)}',
+            'errors': errors
+        })
+
+@app.route('/set_questions/<session_id>', methods=['POST'])
+def set_questions(session_id):
+    """Set questions for the grading session"""
+    if session_id not in grading_sessions:
+        return jsonify({'success': False, 'message': 'Invalid session ID'})
+    
+    data = request.get_json()
+    questions = data.get('questions', [])
+    
+    if not questions:
+        return jsonify({'success': False, 'message': 'No questions provided'})
+    
+    session = grading_sessions[session_id]
+    session.set_questions(questions)
+    
+    return jsonify({
+        'success': True,
+        'message': f'Set {len(questions)} questions successfully'
+    })
+
+@app.route('/set_rubric/<session_id>', methods=['POST'])
+def set_rubric(session_id):
+    """Set rubric for the grading session"""
+    if session_id not in grading_sessions:
+        return jsonify({'success': False, 'message': 'Invalid session ID'})
+    
+    data = request.get_json()
+    rubric = data.get('rubric', {})
+    
+    session = grading_sessions[session_id]
+    session.set_rubric(rubric)
+    
+    return jsonify({
+        'success': True,
+        'message': 'Rubric set successfully'
+    })
+
+@app.route('/update_config/<session_id>', methods=['POST'])
+def update_config(session_id):
+    """Update grading configuration"""
+    if session_id not in grading_sessions:
+        return jsonify({'success': False, 'message': 'Invalid session ID'})
+    
+    data = request.get_json()
+    config = data.get('config', {})
+    
+    session = grading_sessions[session_id]
+    session.update_config(config)
+    
+    return jsonify({
+        'success': True,
+        'message': 'Configuration updated successfully'
+    })
+
+@app.route('/start_grading/<session_id>', methods=['POST'])
+def start_grading(session_id):
+    """Start the grading process"""
+    logger.info(f"Starting grading for session: {session_id}")
+    
+    if session_id not in grading_sessions:
+        logger.error(f"Session not found: {session_id}")
+        return jsonify({'success': False, 'message': 'Invalid session ID'})
+    
+    session = grading_sessions[session_id]
+    logger.info(f"Session found. Files: {len(session.uploaded_files)}, Questions: {len(session.questions)}")
+    
+    # Validate session has required data
+    if not session.uploaded_files:
+        return jsonify({'success': False, 'message': 'No files uploaded'})
+    
+    if not session.questions:
+        return jsonify({'success': False, 'message': 'No questions provided'})
+    
+    try:
+        session.status = 'processing'
+        logger.info("Starting grading process...")
+        
+        # Initialize grading components
+        # Convert weight keys to match AdvancedGradingSystem expectations
+        grader_weights = {
+            'semantic': session.grading_config.get('semantic_weight', 0.30),
+            'rubric': session.grading_config.get('rubric_weight', 0.25),
+            'grammar': session.grading_config.get('grammar_weight', 0.20),
+            'factual': session.grading_config.get('factual_weight', 0.15),
+            'completeness': session.grading_config.get('completeness_weight', 0.10)
+        }
+        
+        grader = AdvancedGradingSystem(grader_weights)
+        preprocessor = MinimalPreprocessor()
+        
+        # Combine questions into reference text
+        reference_text = "\n\n".join([f"Question {i+1}: {q}" for i, q in enumerate(session.questions)])
+        logger.info(f"Reference text length: {len(reference_text)}")
+        
+        # Process each uploaded file
+        results = []
+        
+        for file_info in session.uploaded_files:
+            try:
+                logger.info(f"Processing file: {file_info['filename']}")
+                
+                # Extract text from file
+                if file_info['file_type'] == 'pdf':
+                    student_text = extract_text_from_pdf(file_info['filepath'])
+                else:
+                    with open(file_info['filepath'], 'r', encoding='utf-8') as f:
+                        student_text = f.read()
+                
+                logger.info(f"Extracted text length: {len(student_text)}")
+                
+                # Preprocess text
+                preprocessed = preprocessor.preprocess_text(student_text)
+                cleaned_text = preprocessed['cleaned_text']
+                
+                logger.info(f"Cleaned text length: {len(cleaned_text)}")
+                
+                # Grade the assignment
+                result = grader.grade_assignment(
+                    student_text=cleaned_text,
+                    reference_text=reference_text,
+                    student_id=file_info['filename'],
+                    assignment_id=f"assignment_{len(results)+1}"
+                )
+                
+                logger.info(f"Grading completed. Final score: {result.final_score}")
+                
+                # Convert result to dictionary for JSON serialization
+                result_dict = {
+                    'filename': file_info['filename'],
+                    'student_id': result.student_id,
+                    'final_score': round(result.final_score, 2),
+                    'semantic_score': round(result.semantic_score, 2),
+                    'rubric_score': round(result.rubric_score, 2),
+                    'grammar_score': round(result.grammar_score, 2),
+                    'factual_score': round(result.factual_score, 2),
+                    'completeness_score': round(result.completeness_score, 2),
+                    'confidence_score': round(result.confidence_score, 3),
+                    'word_count': result.word_count,
+                    'sentence_count': result.sentence_count,
+                    'technical_terms_found': result.technical_terms_found,
+                    'grammar_issues': result.grammar_issues,
+                    'strengths': result.strengths,
+                    'weaknesses': result.weaknesses,
+                    'suggestions': result.suggestions,
+                    'processing_time': round(result.processing_time, 2),
+                    'student_info': preprocessed['student_info']
+                }
+                
+                results.append(result_dict)
+                
+            except Exception as e:
+                logger.error(f"Error processing file {file_info['filename']}: {e}")
+                results.append({
+                    'filename': file_info['filename'],
+                    'error': str(e),
+                    'final_score': 0,
+                    'processing_failed': True
+                })
+        
+        session.results = results
+        session.status = 'completed'
+        
+        logger.info(f"Grading completed. Results: {len(results)}")
+        
+        return jsonify({
+            'success': True,
+            'message': f'Grading completed for {len(results)} files',
+            'results_count': len(results)
+        })
+        
+    except Exception as e:
+        session.status = 'error'
+        logger.error(f"Grading error: {e}")
+        return jsonify({'success': False, 'message': f'Grading failed: {str(e)}'})
+
+@app.route('/get_results/<session_id>')
+def get_results(session_id):
+    """Get grading results for a session"""
+    logger.info(f"Getting results for session: {session_id}")
+    logger.info(f"Available sessions: {list(grading_sessions.keys())}")
+    
+    if session_id not in grading_sessions:
+        return jsonify({
+            'success': False, 
+            'message': f'Invalid session ID. Available sessions: {len(grading_sessions)}'
+        })
+    
+    session = grading_sessions[session_id]
+    logger.info(f"Session status: {session.status}")
+    
+    if session.status != 'completed':
+        return jsonify({
+            'success': False, 
+            'message': f'Grading not completed. Status: {session.status}'
+        })
+    
+    # Calculate summary statistics
+    if session.results:
+        scores = [r.get('final_score', 0) for r in session.results if not r.get('processing_failed')]
+        summary = {
+            'total_files': len(session.results),
+            'successful_gradings': len(scores),
+            'average_score': round(sum(scores) / len(scores), 2) if scores else 0,
+            'highest_score': max(scores) if scores else 0,
+            'lowest_score': min(scores) if scores else 0
+        }
+    else:
+        summary = {
+            'total_files': 0,
+            'successful_gradings': 0,
+            'average_score': 0,
+            'highest_score': 0,
+            'lowest_score': 0
+        }
+    
+    return jsonify({
+        'success': True,
+        'results': session.results,
+        'summary': summary,
+        'session_info': {
+            'session_id': session_id,
+            'created_at': session.created_at.isoformat(),
+            'questions_count': len(session.questions),
+            'files_count': len(session.uploaded_files)
+        }
+    })
+
+@app.route('/export_results/<session_id>')
+def export_results(session_id):
+    """Export results to CSV"""
+    if session_id not in grading_sessions:
+        return jsonify({'success': False, 'message': 'Invalid session ID'})
+    
+    session = grading_sessions[session_id]
+    
+    if not session.results:
+        return jsonify({'success': False, 'message': 'No results to export'})
+    
+    # Create DataFrame from results
+    df_data = []
+    for result in session.results:
+        if not result.get('processing_failed'):
+            df_data.append({
+                'filename': result['filename'],
+                'student_name': result.get('student_info', {}).get('name', 'Unknown'),
+                'final_score': result['final_score'],
+                'semantic_score': result['semantic_score'],
+                'rubric_score': result['rubric_score'],
+                'grammar_score': result['grammar_score'],
+                'factual_score': result['factual_score'],
+                'completeness_score': result['completeness_score'],
+                'confidence_score': result['confidence_score'],
+                'word_count': result['word_count'],
+                'sentence_count': result['sentence_count'],
+                'technical_terms': result['technical_terms_found'],
+                'grammar_issues': result['grammar_issues'],
+                'strengths': '; '.join(result['strengths']),
+                'weaknesses': '; '.join(result['weaknesses']),
+                'suggestions': '; '.join(result['suggestions'])
+            })
+    
+    if df_data:
+        df = pd.DataFrame(df_data)
+        
+        # Save to CSV
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f"grading_results_{session_id[:8]}_{timestamp}.csv"
+        filepath = os.path.join(RESULTS_FOLDER, filename)
+        df.to_csv(filepath, index=False)
+        
+        return send_file(filepath, as_attachment=True, download_name=filename)
+    else:
+        return jsonify({'success': False, 'message': 'No valid results to export'})
+
+@app.route('/start_gemini_grading/<session_id>', methods=['POST'])
+def start_gemini_grading(session_id):
+    """Start Gemini-enhanced grading process"""
+    logger.info(f"Starting Gemini-enhanced grading for session: {session_id}")
+    
+    if session_id not in grading_sessions:
+        return jsonify({'success': False, 'message': 'Invalid session ID'})
+    
+    session = grading_sessions[session_id]
+    
+    # Validate session has required data
+    if not session.uploaded_files:
+        return jsonify({'success': False, 'message': 'No files uploaded'})
+    
+    if not session.questions:
+        return jsonify({'success': False, 'message': 'No questions provided'})
+    
+    try:
+        session.status = 'processing'
+        logger.info("Starting Gemini-enhanced grading process...")
+        
+        # Get API key from request
+        data = request.get_json() or {}
+        gemini_api_key = data.get('gemini_api_key')
+        
+        # Initialize grading components with Gemini
+        grader_weights = {
+            'semantic': session.grading_config.get('semantic_weight', 0.30),
+            'rubric': session.grading_config.get('rubric_weight', 0.25),
+            'grammar': session.grading_config.get('grammar_weight', 0.20),
+            'factual': session.grading_config.get('factual_weight', 0.15),
+            'completeness': session.grading_config.get('completeness_weight', 0.10)
+        }
+        
+        grader = AdvancedGradingSystem(grader_weights, gemini_api_key)
+        preprocessor = MinimalPreprocessor()
+        
+        # Create rubric criteria from session data
+        rubric_criteria = {
+            'accuracy': 'Correct and factual information',
+            'completeness': 'Comprehensive coverage of topics',
+            'clarity': 'Clear and well-organized explanation',
+            'understanding': 'Demonstrates deep understanding'
+        }
+        
+        # Process each uploaded file
+        results = []
+        
+        for file_info in session.uploaded_files:
+            try:
+                logger.info(f"Processing file: {file_info['filename']}")
+                
+                # Extract text from file
+                if file_info['file_type'] == 'pdf':
+                    student_text = extract_text_from_pdf(file_info['filepath'])
+                else:
+                    with open(file_info['filepath'], 'r', encoding='utf-8') as f:
+                        student_text = f.read()
+                
+                logger.info(f"Extracted text length: {len(student_text)}")
+                
+                # Preprocess text
+                preprocessed = preprocessor.preprocess_text(student_text)
+                cleaned_text = preprocessed['cleaned_text']
+                
+                logger.info(f"Cleaned text length: {len(cleaned_text)}")
+                
+                # Grade the assignment with Gemini enhancement
+                result = grader.grade_assignment_with_gemini(
+                    student_text=cleaned_text,
+                    questions=session.questions,
+                    rubric_criteria=rubric_criteria,
+                    student_id=file_info['filename'],
+                    assignment_id=f"gemini_assignment_{len(results)+1}"
+                )
+                
+                logger.info(f"Gemini grading completed. Final score: {result.final_score}")
+                
+                # Convert result to dictionary for JSON serialization
+                result_dict = {
+                    'filename': file_info['filename'],
+                    'student_id': result.student_id,
+                    'final_score': round(result.final_score, 2),
+                    'semantic_score': round(result.semantic_score, 2),
+                    'rubric_score': round(result.rubric_score, 2),
+                    'grammar_score': round(result.grammar_score, 2),
+                    'factual_score': round(result.factual_score, 2),
+                    'completeness_score': round(result.completeness_score, 2),
+                    'confidence_score': round(result.confidence_score, 3),
+                    'word_count': result.word_count,
+                    'sentence_count': result.sentence_count,
+                    'technical_terms_found': result.technical_terms_found,
+                    'grammar_issues': result.grammar_issues,
+                    'strengths': result.strengths,
+                    'weaknesses': result.weaknesses,
+                    'suggestions': result.suggestions,
+                    'processing_time': round(result.processing_time, 2),
+                    'student_info': preprocessed['student_info'],
+                    # Gemini-specific fields
+                    'gemini_model_answer': getattr(result, 'gemini_model_answer', '')[:500] + "..." if len(getattr(result, 'gemini_model_answer', '')) > 500 else getattr(result, 'gemini_model_answer', ''),
+                    'gemini_similarity': round(getattr(result, 'gemini_similarity', 0), 3),
+                    'gemini_used': getattr(result, 'gemini_used', False),
+                    'gemini_detailed_scores': getattr(result, 'gemini_detailed_scores', {})
+                }
+                
+                results.append(result_dict)
+                
+            except Exception as e:
+                logger.error(f"Error processing file {file_info['filename']}: {e}")
+                results.append({
+                    'filename': file_info['filename'],
+                    'error': str(e),
+                    'final_score': 0,
+                    'processing_failed': True
+                })
+        
+        session.results = results
+        session.status = 'completed'
+        
+        logger.info(f"Gemini grading completed. Results: {len(results)}")
+        
+        return jsonify({
+            'success': True,
+            'message': f'Gemini-enhanced grading completed for {len(results)} files',
+            'results_count': len(results),
+            'gemini_used': grader.use_gemini
+        })
+        
+    except Exception as e:
+        session.status = 'error'
+        logger.error(f"Gemini grading error: {e}")
+        return jsonify({'success': False, 'message': f'Gemini grading failed: {str(e)}'})
+
+@app.route('/test_gemini_connection', methods=['POST'])
+def test_gemini_connection():
+    """Test Gemini API connection"""
+    try:
+        data = request.get_json() or {}
+        api_key = data.get('api_key')
+        
+        gemini_grader = GeminiGrader(api_key)
+        test_result = gemini_grader.test_connection()
+        
+        return jsonify(test_result)
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Connection test failed: {str(e)}',
+            'gemini_available': False
+        })
+
+@app.route('/grading_modes')
+def grading_modes():
+    """Show available grading modes"""
+    return jsonify({
+        'success': True,
+        'modes': [
+            {
+                'name': 'Standard Grading',
+                'description': 'Multi-dimensional analysis with modular NLP components',
+                'endpoint': '/start_grading',
+                'features': ['Semantic analysis', 'Grammar checking', 'Rubric scoring', 'Factual verification']
+            },
+            {
+                'name': 'Gemini-Enhanced Grading',
+                'description': 'AI-powered grading with Gemini-generated model answers',
+                'endpoint': '/start_gemini_grading',
+                'features': ['AI model answers', 'Advanced comparison', 'Enhanced feedback', 'Higher accuracy']
+            }
+        ]
+    })
+def session_status(session_id):
+    """Get session status"""
+    if session_id not in grading_sessions:
+        return jsonify({'success': False, 'message': 'Invalid session ID'})
+    
+    session = grading_sessions[session_id]
+    
+    return jsonify({
+        'success': True,
+        'status': session.status,
+        'files_count': len(session.uploaded_files),
+        'questions_count': len(session.questions),
+        'has_rubric': bool(session.rubric),
+        'results_count': len(session.results) if session.results else 0
+    })
+
+@app.route('/minimal_grading')
+def minimal_grading():
+    """Minimal grading interface"""
+    return render_template('minimal_grading.html')
+
+@app.route('/simple_test')
+def simple_test():
+    """Simple test page"""
+    return render_template('simple_test.html')
+
+@app.route('/list_sessions')
+def list_sessions():
+    """List all active sessions for debugging"""
+    sessions_info = []
+    for session_id, session in grading_sessions.items():
+        sessions_info.append({
+            'session_id': session_id,
+            'status': session.status,
+            'files_count': len(session.uploaded_files),
+            'questions_count': len(session.questions),
+            'results_count': len(session.results) if session.results else 0,
+            'created_at': session.created_at.isoformat()
+        })
+    
+    return jsonify({
+        'success': True,
+        'total_sessions': len(grading_sessions),
+        'sessions': sessions_info
+    })
+
+@app.route('/debug_session/<session_id>')
+def debug_session(session_id):
+    """Debug endpoint to check session status"""
+    if session_id not in grading_sessions:
+        return jsonify({'success': False, 'message': 'Session not found'})
+    
+    session = grading_sessions[session_id]
+    
+    return jsonify({
+        'success': True,
+        'session_id': session_id,
+        'status': session.status,
+        'uploaded_files_count': len(session.uploaded_files),
+        'questions_count': len(session.questions),
+        'results_count': len(session.results) if session.results else 0,
+        'has_results': bool(session.results),
+        'results_sample': session.results[:2] if session.results else None,
+        'created_at': session.created_at.isoformat()
+    })
+
+@app.route('/test_upload')
+def test_upload_page():
+    """Test upload page"""
+    return render_template('test_upload.html')
+
+@app.route('/test')
+def test():
+    """Test endpoint"""
+    return jsonify({'success': True, 'message': 'Server is working', 'timestamp': datetime.now().isoformat()})
+
+@app.route('/enhanced_grading')
+def enhanced_grading():
+    """Enhanced grading interface with both standard and Gemini modes"""
+    return render_template('enhanced_grading_interface.html')
+
+@app.route('/grading_interface')
+def grading_interface():
+    """Grading interface page"""
+    return render_template('grading_interface.html')
+
+@app.route('/results_viewer')
+def results_viewer():
+    """Results viewer page"""
+    return render_template('results_viewer.html')
+
+@app.errorhandler(413)
+def too_large(e):
+    """Handle file too large error"""
+    return jsonify({'success': False, 'message': 'File too large. Maximum size is 16MB.'}), 413
+
+@app.errorhandler(500)
+def internal_error(e):
+    """Handle internal server error"""
+    return jsonify({'success': False, 'message': 'Internal server error occurred.'}), 500
+
+if __name__ == '__main__':
+    print("🚀 Starting Advanced Grading System Web Interface...")
+    print("📊 Access the application at: http://localhost:5000")
+    print("📁 Upload folder:", UPLOAD_FOLDER)
+    print("📄 Results folder:", RESULTS_FOLDER)
+    
+    app.run(debug=True, host='0.0.0.0', port=5000)

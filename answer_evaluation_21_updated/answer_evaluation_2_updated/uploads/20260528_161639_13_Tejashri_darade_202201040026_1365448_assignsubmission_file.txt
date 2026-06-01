@@ -1,0 +1,146 @@
+30/08/14
+Friday
+Q1.
+Activity - 1
+Operating System.
+Name - Tejashn Dassle
+PPN-20241040026
+8714
+Pello 15
+Jummarize the key similarities & differe
+nce in how various operating systems perfo-
+rm their care function.
+for users & developers..
+& the implications
+→a) Similarities:
+4338
+>> core functions:- All operating systems provide
+essential functions such as managing hardware.
+resources (CPU, memory, storage), offering
+interface & facilating the execution of applications
+2) Process management 1- OS's handle process scheduling
+, multitasking is execution control, ensuring that CPU resou
+rces are allocated efficiently...
+3 memory Management :- They provide memory allocation,
+deallocation & swapping to manage system memory.
+effectively.
+file system management 1-035 manages fila & diedo
+ries on storage devices, including reading, won'ti-
+organizing data.
+ng
+• security
+Allos implement security measures
+like user authentication, access contral & data.
+enscryption to protect system integnity & user data,
+b) Difference:
+User Interface: Windows offers a highly graphical
+interface, macos has polished & integrated UI
+with its ecosystem, & Linux varies with its-
+distributions, offering both graphical fcomm.
+and-line interface.
+1
+Page
+2) Kernel Architecture: Linux uses a monolitic kerne
+, windows uses a hybrid kernel & macOS uses
+a combination of microkernel fadditional
+modules.
+13) Compatibility:- Windows is widely compatible with
+avast range of hardware & software, Linux excels
+in customization Soper source flexibility, while
+macos is optimized for Apple Hardware
+4) Security Approaches :- Linux is known for its
+Strom
+security model fopen-source transparency, mos
+provides security through obscurity foystem integnie
+protections, & windows implements extensive
+secanty features but is more frequently targe
+ted by malware
+6 Developers Environment. :.
+Linux is favored
+for
+for development, especially in open-source
+& server environments, Maco's popular
+development due to this Unix base & Apple
+ecosystem & window offers Comprehensive.
+teels for developing a broad range of app?
+Implications:-
+2
+Dusers: The choice of 05 affects usability,
+1 available applications & hardware compatibility
+for ex, macOS users benefits from seamless
+integration with Apple devices, while Linux users
+gain control & customization
+2>Developers :Different 055 offer distinct deve-
+lopment environments & tools Linux. 15 ideal
+for system programing & open-source projects,
+macos is preferred for cross-platform deve
+lopment (including ios apps) & windows
+2
+Page
+oe
+provides robust support for enterprise f
+gaming applications.
+What Explain the functions of the book
+loader in the operating systom
+process.
+boot
+The bootloader is a crucial program that facili
+at as the initial phase of the operating system.
+(05) boot process. It's primary function is
+to load the operating system's kernel into
+memory Istart. Its everution.
+steps of how it's works;
+Power on
+74
+Hardware Initialization:
+When you power on a complites, the B105
+or UEFI Firmware is the first time to run
+It initialize the hardware Components &
+performs a Power-On self-Test (POST) to
+ensures everything is functioning correctly,
+2> Locating the Book loader :- After the pos by
+the BIOS / VEFI searches the book loa des, which
+is usually stored in a specific location on
+a boattable device like
+drive
+SSID Or
+remarcable medice. This location is typecally
+Boot Record (MBR) or the
+the master
+avad partition Table (GPT)
+3) Loading the kernel: Once the bootloadg
+is found its main job is to load the
+05 kernel into the system's RAM. The
+Kernel is the
+part of operating
+core
+3
+system that manager resources + hardes
+Communications
+4) Executing the kernel: fifter loading the
+-kernel into memory, the boot loodes hands
+Lover control to the kernel. The kernel then..
+takes over, initializes the rest of the Operation
+System
+& Starts oystem processes.
+to the full boot of the 05.
+Importance Of Bootloader :-
+4
+leading
+D Dual - Barting - Bootloaders, like CRUB, allow
+users to select from multiple operating
+systems installed on the same machine
+2) kernel Parameters :- Bootloaders.
+can pa
+specific parameters to the Kernel, influe
+ncing The behavior
+he behavior of the 05 during
+Startup.
+(3) security: Boot loaders can include security
+•
+features like password protection to
+prevent unalethorized access
+or check
+to ensure that only trusted Kerned
+are loaded.
+4

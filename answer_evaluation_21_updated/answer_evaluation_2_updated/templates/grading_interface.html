@@ -1,0 +1,597 @@
+{% extends "base.html" %}
+{% block title %}Grading Interface - Advanced Grading System{% endblock %}
+
+{% block extra_css %}
+<style>
+  .steps-bar { display:flex; gap:.5rem; margin-bottom:2rem; }
+  .step-pill {
+    flex:1; text-align:center; padding:.6rem .4rem; border-radius:10px;
+    background:#f0f4ff; border:2px solid #dee2e6; font-size:.85rem; color:#6c757d;
+    transition:all .25s;
+  }
+  .step-pill.active { background:#3498db; color:#fff; border-color:#3498db; font-weight:700; }
+  .step-pill.done   { background:#27ae60; color:#fff; border-color:#27ae60; }
+
+  #sessionBar {
+    display:none; position:fixed; top:0; left:0; right:0; z-index:9999;
+    background:linear-gradient(135deg,#667eea,#764ba2);
+    color:#fff; padding:.45rem 1.2rem;
+    align-items:center; justify-content:space-between; gap:.6rem; flex-wrap:wrap;
+    box-shadow:0 2px 10px rgba(0,0,0,.25);
+  }
+  #sessionBar.show { display:flex; }
+  body.bar-on { padding-top:44px; }
+  .sbar-id  { font-family:monospace; font-weight:700; font-size:.92rem; }
+  .sbar-lbl { font-size:.72rem; opacity:.75; }
+  .sbar-btn { background:rgba(255,255,255,.2); border:none; color:#fff;
+               border-radius:6px; padding:.2rem .65rem; cursor:pointer; font-size:.78rem; }
+  .sbar-btn:hover { background:rgba(255,255,255,.35); }
+  #copiedBadge { display:none; background:#198754; border-radius:5px;
+                 padding:.1rem .5rem; font-size:.75rem; }
+
+  .flow-card { border:none; border-radius:14px; box-shadow:0 4px 18px rgba(0,0,0,.08);
+               margin-bottom:1.5rem; }
+  .flow-card .card-header { border-radius:14px 14px 0 0 !important; font-weight:600; }
+
+  #dropZone {
+    border:3px dashed #adb5bd; border-radius:12px; padding:2.5rem;
+    text-align:center; cursor:pointer; transition:all .2s;
+  }
+  #dropZone.hover { border-color:#3498db; background:#f0f8ff; }
+  #dropZone.done  { border-color:#27ae60; background:#f0fff4; }
+
+  .file-chip { display:flex; justify-content:space-between; align-items:center;
+               padding:.5rem .8rem; background:#f8f9fa; border-radius:8px;
+               margin-bottom:.4rem; border-left:4px solid #27ae60; }
+
+  .q-row { background:#f8f9ff; border-radius:10px; padding:1rem; margin-bottom:.8rem;
+            border-left:4px solid #667eea; }
+  .q-row label { font-weight:600; color:#4c3d8f; font-size:.85rem; }
+
+  .slider-row { display:flex; align-items:center; gap:.8rem; margin-bottom:.6rem; }
+  .slider-row label { min-width:190px; font-size:.88rem; }
+  .slider-row input  { flex:1; }
+  .slider-row .val-badge { min-width:45px; text-align:center; background:#667eea;
+                           color:#fff; border-radius:6px; padding:.1rem .4rem; font-size:.8rem; }
+
+  .score-card { border-radius:10px; padding:1rem; text-align:center; color:#fff; }
+  .score-card h3 { margin:0; font-size:1.8rem; font-weight:700; }
+  .student-result-card { border-left:5px solid #3498db; border-radius:0 10px 10px 0;
+                          padding:1rem; background:#fff; margin-bottom:1rem;
+                          box-shadow:0 2px 10px rgba(0,0,0,.06); }
+  .score-bar { height:8px; border-radius:4px; background:#e9ecef; margin:.3rem 0; overflow:hidden; }
+  .score-bar-fill { height:100%; border-radius:4px; transition:width .5s; }
+
+  .btn-grad { background:linear-gradient(135deg,#667eea,#764ba2); border:none;
+              color:#fff; font-weight:600; border-radius:8px; }
+  .btn-grad:hover { opacity:.9; color:#fff; }
+  .nav-btns { display:flex; justify-content:space-between; margin-top:1.5rem; }
+
+  #progressWrap { display:none; }
+  .prog-step { padding:.4rem .8rem; border-radius:20px; font-size:.82rem;
+               background:#f0f4ff; color:#667eea; margin:.2rem; display:inline-block; }
+  .prog-step.active { background:#667eea; color:#fff; }
+  .prog-step.done   { background:#27ae60; color:#fff; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Fixed Session ID bar -->
+<div id="sessionBar">
+  <div>
+    <div class="sbar-lbl">🔑 Session ID — copy this to use in Gemini Tools</div>
+    <div class="sbar-id" id="sbarId">creating session...</div>
+  </div>
+  <div style="display:flex;gap:.4rem;align-items:center;">
+    <span id="copiedBadge">✅ Copied!</span>
+    <button class="sbar-btn" onclick="copySession()">📋 Copy ID</button>
+    <a href="/gemini_tools" target="_blank" class="sbar-btn" style="text-decoration:none;">🤖 Gemini Tools</a>
+    <a href="/list_sessions" target="_blank" class="sbar-btn" style="text-decoration:none;">📋 All Sessions</a>
+  </div>
+</div>
+
+<div class="row mb-2">
+  <div class="col-12">
+    <h2><i class="fas fa-edit me-2"></i>Grading Interface</h2>
+    <div class="steps-bar" id="stepBar">
+      <div class="step-pill active" id="sp1">① Upload Files</div>
+      <div class="step-pill"        id="sp2">② Enter Questions</div>
+      <div class="step-pill"        id="sp3">③ Set Weights</div>
+      <div class="step-pill"        id="sp4">④ Grade &amp; Results</div>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 1: Upload -->
+<div id="step1">
+  <div class="card flow-card">
+    <div class="card-header bg-primary text-white">📂 Step 1 — Upload Student Answer Files</div>
+    <div class="card-body">
+      <div id="dropZone" onclick="document.getElementById('fileInput').click()">
+        <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3 d-block"></i>
+        <h5>Click here or drag &amp; drop files</h5>
+        <p class="text-muted mb-0">Supports .txt and .pdf — you can select multiple files at once.</p>
+        <input type="file" id="fileInput" multiple accept=".txt,.pdf" style="display:none">
+      </div>
+      <div id="fileList" class="mt-3"></div>
+      <div id="uploadStatus" class="mt-2"></div>
+    </div>
+  </div>
+  <div class="nav-btns">
+    <div></div>
+    <button class="btn btn-primary btn-lg" onclick="goStep(2)" id="btn1next" disabled>
+      Next: Enter Questions <i class="fas fa-arrow-right ms-1"></i>
+    </button>
+  </div>
+</div>
+
+<!-- STEP 2: Questions -->
+<div id="step2" style="display:none;">
+  <div class="card flow-card">
+    <div class="card-header bg-primary text-white">📝 Step 2 — Enter Exam Questions</div>
+    <div class="card-body">
+      <p class="text-muted small">Enter the questions students were asked to answer. These are used as the reference for grading.</p>
+      <div id="questionsWrap">
+        <div class="q-row">
+          <label>Question 1</label>
+          <textarea class="form-control mt-1" rows="3" placeholder="Type question 1 here..."></textarea>
+        </div>
+      </div>
+      <div class="d-flex gap-2 mt-2">
+        <button class="btn btn-outline-success btn-sm" onclick="addQ()"><i class="fas fa-plus me-1"></i>Add Question</button>
+        <button class="btn btn-outline-danger btn-sm"  onclick="removeQ()"><i class="fas fa-minus me-1"></i>Remove Last</button>
+      </div>
+      <div id="qStatus" class="mt-2"></div>
+    </div>
+  </div>
+  <div class="nav-btns">
+    <button class="btn btn-outline-secondary btn-lg" onclick="goStep(1)"><i class="fas fa-arrow-left me-1"></i> Back</button>
+    <button class="btn btn-primary btn-lg" onclick="saveQuestionsAndNext()">
+      Next: Set Weights <i class="fas fa-arrow-right ms-1"></i>
+    </button>
+  </div>
+</div>
+
+<!-- STEP 3: Weights -->
+<div id="step3" style="display:none;">
+  <div class="row">
+    <div class="col-md-7">
+      <div class="card flow-card">
+        <div class="card-header bg-primary text-white">⚖️ Step 3 — Grading Weights</div>
+        <div class="card-body">
+          <p class="text-muted small">Adjust how much each component contributes. Total should equal 100%.</p>
+          <div class="slider-row">
+            <label>Semantic Understanding</label>
+            <input type="range" class="form-range" id="wSemantic" min="0" max="60" value="30" oninput="updateWeights()">
+            <span class="val-badge" id="wSemanticV">30%</span>
+          </div>
+          <div class="slider-row">
+            <label>Rubric Coverage</label>
+            <input type="range" class="form-range" id="wRubric" min="0" max="60" value="25" oninput="updateWeights()">
+            <span class="val-badge" id="wRubricV">25%</span>
+          </div>
+          <div class="slider-row">
+            <label>Grammar &amp; Style</label>
+            <input type="range" class="form-range" id="wGrammar" min="0" max="60" value="20" oninput="updateWeights()">
+            <span class="val-badge" id="wGrammarV">20%</span>
+          </div>
+          <div class="slider-row">
+            <label>Factual Accuracy</label>
+            <input type="range" class="form-range" id="wFactual" min="0" max="60" value="15" oninput="updateWeights()">
+            <span class="val-badge" id="wFactualV">15%</span>
+          </div>
+          <div class="slider-row">
+            <label>Completeness</label>
+            <input type="range" class="form-range" id="wCompleteness" min="0" max="60" value="10" oninput="updateWeights()">
+            <span class="val-badge" id="wCompletenessV">10%</span>
+          </div>
+          <div id="totalWeightAlert" class="alert alert-success mt-2 py-2 small">
+            Total: <strong>100%</strong> ✅
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-5">
+      <div class="card flow-card">
+        <div class="card-header bg-secondary text-white">📊 Weight Distribution</div>
+        <div class="card-body" style="height:260px;">
+          <canvas id="weightChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="nav-btns">
+    <button class="btn btn-outline-secondary btn-lg" onclick="goStep(2)"><i class="fas fa-arrow-left me-1"></i> Back</button>
+    <button class="btn btn-grad btn-lg" onclick="startGrading()">
+      <i class="fas fa-play me-1"></i> Start Grading
+    </button>
+  </div>
+</div>
+
+<!-- STEP 4: Results -->
+<div id="step4" style="display:none;">
+  <div id="progressWrap" class="card flow-card">
+    <div class="card-body text-center py-4">
+      <h5>⚙️ Grading in progress...</h5>
+      <div class="progress mt-3" style="height:12px;">
+        <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
+             id="progBar" style="width:0%"></div>
+      </div>
+      <div class="mt-3" id="progStepsWrap"></div>
+      <p class="text-muted mt-2" id="progMsg">Initializing...</p>
+    </div>
+  </div>
+
+  <div id="resultsWrap" style="display:none;">
+    <div class="row mb-3" id="summaryRow"></div>
+    <div class="card flow-card">
+      <div class="card-header bg-success text-white">📋 Student Results</div>
+      <div class="card-body" id="studentResultsWrap"></div>
+    </div>
+    <div class="d-flex gap-2 flex-wrap mt-2">
+      <button class="btn btn-success" onclick="exportCSV()"><i class="fas fa-download me-1"></i>Export CSV</button>
+      <button class="btn btn-outline-primary" onclick="location.reload()"><i class="fas fa-plus me-1"></i>New Session</button>
+    </div>
+  </div>
+
+  <div class="nav-btns">
+    <button class="btn btn-outline-secondary" onclick="goStep(3)"><i class="fas fa-arrow-left me-1"></i> Back</button>
+    <div></div>
+  </div>
+</div>
+
+<input type="hidden" id="sessionIdHidden">
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/* ── State ── */
+let sessionId = '';
+let weightChart = null;
+
+const WEIGHTS = {
+  semantic:     { id:'wSemantic',     label:'Semantic',     color:'#3498db' },
+  rubric:       { id:'wRubric',       label:'Rubric',       color:'#27ae60' },
+  grammar:      { id:'wGrammar',      label:'Grammar',      color:'#f39c12' },
+  factual:      { id:'wFactual',      label:'Factual',      color:'#e74c3c' },
+  completeness: { id:'wCompleteness', label:'Completeness', color:'#9b59b6' }
+};
+
+const PROG_STEPS = [
+  'Creating session config…','Extracting text…','Preprocessing…',
+  'Semantic analysis…','Rubric check…','Grammar check…',
+  'Factual check…','Calculating scores…','Generating feedback…','Done!'
+];
+
+/* ── Init ── */
+document.addEventListener('DOMContentLoaded', () => {
+  createSession();
+  setupDrop();
+  initChart();
+});
+
+/* ── Session ── */
+function createSession() {
+  fetch('/new_session', { method:'POST' })
+    .then(r => r.json())
+    .then(d => {
+      if (d.success) {
+        sessionId = d.session_id;
+        document.getElementById('sessionIdHidden').value = sessionId;
+        document.getElementById('sbarId').textContent = sessionId;
+        document.getElementById('sessionBar').classList.add('show');
+        document.body.classList.add('bar-on');
+      } else {
+        alert('Could not create session: ' + d.message);
+      }
+    })
+    .catch(e => alert('Server connection error: ' + e.message));
+}
+
+function copySession() {
+  if (!sessionId) return;
+  navigator.clipboard.writeText(sessionId)
+    .then(() => {
+      const b = document.getElementById('copiedBadge');
+      b.style.display = 'inline-block';
+      setTimeout(() => b.style.display = 'none', 2000);
+    })
+    .catch(() => prompt('Your Session ID (copy this):', sessionId));
+}
+
+/* ── Step nav ── */
+function goStep(n) {
+  [1,2,3,4].forEach(i => {
+    document.getElementById('step'+i).style.display = i===n ? 'block' : 'none';
+    const p = document.getElementById('sp'+i);
+    p.classList.remove('active','done');
+    if (i < n)  p.classList.add('done');
+    if (i === n) p.classList.add('active');
+  });
+  window.scrollTo(0,0);
+}
+
+/* ── Step 1: Upload ── */
+function setupDrop() {
+  const zone  = document.getElementById('dropZone');
+  const input = document.getElementById('fileInput');
+  input.addEventListener('change', e => handleFiles(Array.from(e.target.files)));
+  zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('hover'); });
+  zone.addEventListener('dragleave', ()  => zone.classList.remove('hover'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault(); zone.classList.remove('hover');
+    handleFiles(Array.from(e.dataTransfer.files));
+  });
+}
+
+function handleFiles(files) {
+  if (!sessionId) { showStatus('uploadStatus','⚠️ Session not ready yet, please wait a moment.','warning'); return; }
+  if (!files.length) return;
+  showStatus('uploadStatus','⏳ Uploading...','info');
+
+  const fd = new FormData();
+  files.forEach(f => fd.append('files', f));
+
+  fetch(`/upload_files/${sessionId}`, { method:'POST', body:fd })
+    .then(r => r.json())
+    .then(d => {
+      if (d.success) {
+        showStatus('uploadStatus', `✅ ${d.message}`, 'success');
+        files.forEach(f => {
+          const el = document.createElement('div');
+          el.className = 'file-chip';
+          el.innerHTML = `<span><i class="fas fa-file-alt text-success me-2"></i><strong>${f.name}</strong>
+                          <small class="text-muted ms-2">${(f.size/1024).toFixed(1)} KB</small></span>
+                          <span class="badge bg-success">Uploaded</span>`;
+          document.getElementById('fileList').appendChild(el);
+        });
+        document.getElementById('dropZone').classList.add('done');
+        document.getElementById('btn1next').disabled = false;
+      } else {
+        showStatus('uploadStatus', '❌ ' + d.message, 'danger');
+      }
+    })
+    .catch(e => showStatus('uploadStatus','❌ '+e.message,'danger'));
+}
+
+/* ── Step 2: Questions ── */
+function addQ() {
+  const wrap = document.getElementById('questionsWrap');
+  const n = wrap.children.length + 1;
+  const div = document.createElement('div');
+  div.className = 'q-row';
+  div.innerHTML = `<label>Question ${n}</label>
+    <textarea class="form-control mt-1" rows="3" placeholder="Type question ${n} here..."></textarea>`;
+  wrap.appendChild(div);
+}
+
+function removeQ() {
+  const wrap = document.getElementById('questionsWrap');
+  if (wrap.children.length > 1) wrap.removeChild(wrap.lastElementChild);
+}
+
+function saveQuestionsAndNext() {
+  const qs = Array.from(document.querySelectorAll('#questionsWrap textarea'))
+    .map(t => t.value.trim()).filter(t => t.length > 0);
+
+  if (!qs.length) {
+    showStatus('qStatus','⚠️ Please enter at least one question.','warning'); return;
+  }
+  showStatus('qStatus','⏳ Saving questions...','info');
+
+  fetch(`/set_questions/${sessionId}`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ questions: qs })
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.success) {
+      showStatus('qStatus',`✅ ${qs.length} question(s) saved.`,'success');
+      setTimeout(() => goStep(3), 400);
+    } else {
+      showStatus('qStatus','❌ '+d.message,'danger');
+    }
+  })
+  .catch(e => showStatus('qStatus','❌ '+e.message,'danger'));
+}
+
+/* ── Step 3: Weights ── */
+function updateWeights() {
+  let total = 0;
+  Object.keys(WEIGHTS).forEach(k => {
+    const v = parseInt(document.getElementById(WEIGHTS[k].id).value);
+    document.getElementById(WEIGHTS[k].id+'V').textContent = v+'%';
+    total += v;
+  });
+  const el = document.getElementById('totalWeightAlert');
+  if (Math.abs(total-100) <= 1) {
+    el.className = 'alert alert-success mt-2 py-2 small';
+    el.innerHTML = `Total: <strong>${total}%</strong> ✅`;
+  } else {
+    el.className = 'alert alert-warning mt-2 py-2 small';
+    el.innerHTML = `Total: <strong>${total}%</strong> ⚠️ Should be 100%`;
+  }
+  if (weightChart) {
+    weightChart.data.datasets[0].data =
+      Object.keys(WEIGHTS).map(k => parseInt(document.getElementById(WEIGHTS[k].id).value));
+    weightChart.update();
+  }
+}
+
+function initChart() {
+  const ctx = document.getElementById('weightChart').getContext('2d');
+  weightChart = new Chart(ctx, {
+    type:'doughnut',
+    data:{
+      labels: Object.values(WEIGHTS).map(w=>w.label),
+      datasets:[{ data:[30,25,20,15,10], backgroundColor:Object.values(WEIGHTS).map(w=>w.color) }]
+    },
+    options:{ responsive:true, maintainAspectRatio:false,
+              plugins:{ legend:{ position:'bottom', labels:{ font:{ size:11 } } } } }
+  });
+}
+
+/* ── Step 4: Grade ── */
+function startGrading() {
+  if (!sessionId) { alert('No active session!'); return; }
+
+  const cfg = {};
+  Object.keys(WEIGHTS).forEach(k => {
+    cfg[k+'_weight'] = parseInt(document.getElementById(WEIGHTS[k].id).value) / 100;
+  });
+  fetch(`/update_config/${sessionId}`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ config: cfg })
+  });
+
+  goStep(4);
+  document.getElementById('progressWrap').style.display = 'block';
+  document.getElementById('resultsWrap').style.display  = 'none';
+
+  const wrap = document.getElementById('progStepsWrap');
+  wrap.innerHTML = PROG_STEPS.map((s,i) =>
+    `<span class="prog-step" id="ps${i}">${s}</span>`).join('');
+
+  let pct = 0;
+  const bar = document.getElementById('progBar');
+  const msg = document.getElementById('progMsg');
+  const iv = setInterval(() => {
+    pct = Math.min(pct+9, 90);
+    bar.style.width = pct+'%';
+    const idx = Math.min(Math.floor(pct/10), PROG_STEPS.length-1);
+    msg.textContent = PROG_STEPS[idx];
+    PROG_STEPS.forEach((_,i) => {
+      const el = document.getElementById('ps'+i);
+      if (!el) return;
+      el.className = 'prog-step'+(i<idx?' done':'')+(i===idx?' active':'');
+    });
+  }, 600);
+
+  fetch(`/start_grading/${sessionId}`, { method:'POST' })
+    .then(r => r.json())
+    .then(d => {
+      clearInterval(iv);
+      bar.style.width = '100%';
+      PROG_STEPS.forEach((_,i) => {
+        const el = document.getElementById('ps'+i);
+        if (el) el.className = 'prog-step done';
+      });
+      msg.textContent = 'Grading complete!';
+
+      if (d.success) {
+        setTimeout(loadResults, 700);
+      } else {
+        document.getElementById('progressWrap').innerHTML =
+          `<div class="alert alert-danger m-3">❌ Grading failed: ${d.message}</div>`;
+      }
+    })
+    .catch(e => {
+      clearInterval(iv);
+      document.getElementById('progressWrap').innerHTML =
+        `<div class="alert alert-danger m-3">❌ Server error: ${e.message}</div>`;
+    });
+}
+
+function loadResults() {
+  fetch(`/get_results/${sessionId}`)
+    .then(r => r.json())
+    .then(d => {
+      if (d.success) renderResults(d);
+      else document.getElementById('progressWrap').innerHTML =
+        `<div class="alert alert-danger m-3">❌ ${d.message}</div>`;
+    })
+    .catch(e => {
+      document.getElementById('progressWrap').innerHTML =
+        `<div class="alert alert-danger m-3">❌ ${e.message}</div>`;
+    });
+}
+
+function renderResults(data) {
+  document.getElementById('progressWrap').style.display = 'none';
+  document.getElementById('resultsWrap').style.display  = 'block';
+
+  const s = data.summary || {};
+  const results = data.results || [];
+
+  const sumColors = ['#3498db','#27ae60','#f39c12','#e74c3c'];
+  const sumLabels = ['Total Files','Avg Score','Highest','Lowest'];
+  const sumVals   = [s.total_files||0, s.average_score||0, s.highest_score||0, s.lowest_score||0];
+  document.getElementById('summaryRow').innerHTML = sumLabels.map((lbl,i)=>`
+    <div class="col-6 col-md-3 mb-3">
+      <div class="score-card" style="background:${sumColors[i]}">
+        <h3>${sumVals[i]}</h3><small>${lbl}</small>
+      </div>
+    </div>`).join('');
+
+  const sw = document.getElementById('studentResultsWrap');
+  if (!results.length) {
+    sw.innerHTML = '<div class="alert alert-warning">No results found.</div>'; return;
+  }
+
+  sw.innerHTML = results.map(r => {
+    if (r.processing_failed) return `
+      <div class="student-result-card" style="border-color:#e74c3c;">
+        <strong>${r.filename}</strong>
+        <span class="badge bg-danger ms-2">Failed</span>
+        <small class="text-muted d-block">${r.error||'Unknown error'}</small>
+      </div>`;
+
+    const name  = (r.student_info&&r.student_info.name) ? r.student_info.name : r.filename;
+    const fs    = r.final_score||0;
+    const color = fs>=75?'#27ae60':fs>=50?'#f39c12':'#e74c3c';
+
+    const scores = [
+      {label:'Semantic',    val:r.semantic_score||0,    color:'#3498db'},
+      {label:'Rubric',      val:r.rubric_score||0,      color:'#27ae60'},
+      {label:'Grammar',     val:r.grammar_score||0,     color:'#f39c12'},
+      {label:'Factual',     val:r.factual_score||0,     color:'#e74c3c'},
+      {label:'Completeness',val:r.completeness_score||0,color:'#9b59b6'},
+    ];
+    const barsHtml = scores.map(sc=>`
+      <div class="d-flex align-items-center gap-2 mb-1" style="font-size:.8rem;">
+        <span style="min-width:90px;">${sc.label}</span>
+        <div class="score-bar flex-grow-1">
+          <div class="score-bar-fill" style="width:${sc.val}%;background:${sc.color};"></div>
+        </div>
+        <span style="min-width:38px;text-align:right;">${sc.val.toFixed(1)}</span>
+      </div>`).join('');
+
+    const strengths  = (r.strengths||[]).slice(0,3).map(s=>`<li>${s}</li>`).join('');
+    const weaknesses = (r.weaknesses||[]).slice(0,3).map(w=>`<li>${w}</li>`).join('');
+
+    return `
+    <div class="student-result-card" style="border-color:${color};">
+      <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+        <div>
+          <strong style="font-size:1rem;">${name}</strong>
+          <small class="text-muted d-block">${r.filename}</small>
+        </div>
+        <div style="font-size:2rem;font-weight:700;color:${color};">
+          ${fs.toFixed(1)}<small style="font-size:.9rem;">/100</small>
+        </div>
+      </div>
+      <div class="mt-2">${barsHtml}</div>
+      <div class="row mt-2" style="font-size:.82rem;">
+        <div class="col-md-4"><span class="text-muted">Words:</span> ${r.word_count||0}
+          &nbsp;<span class="text-muted">Sentences:</span> ${r.sentence_count||0}</div>
+        <div class="col-md-4"><span class="text-muted">Grammar issues:</span> ${r.grammar_issues||0}</div>
+        <div class="col-md-4"><span class="text-muted">Confidence:</span> ${((r.confidence_score||0)*100).toFixed(0)}%</div>
+      </div>
+      ${strengths  ? `<div class="mt-2"><small class="fw-bold text-success">✅ Strengths:</small><ul class="mb-0 small text-success">${strengths}</ul></div>` : ''}
+      ${weaknesses ? `<div class="mt-1"><small class="fw-bold text-danger">⚠️ Improve:</small><ul class="mb-0 small text-danger">${weaknesses}</ul></div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function exportCSV() {
+  if (sessionId) window.location.href = `/export_results/${sessionId}`;
+}
+
+/* ── Util ── */
+function showStatus(elId, msg, type) {
+  const el = document.getElementById(elId);
+  if (el) el.innerHTML = `<div class="alert alert-${type} py-2 small mb-0">${msg}</div>`;
+}
+</script>
+{% endblock %}

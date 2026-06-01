@@ -1,0 +1,846 @@
+{% extends "base.html" %}
+
+{% block title %}Enhanced Grading Interface{% endblock %}
+
+{% block extra_css %}
+<style>
+    .step-card {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        margin-bottom: 2rem;
+    }
+    .step-card.active {
+        border-color: #0d6efd;
+        box-shadow: 0 0 15px rgba(13, 110, 253, 0.2);
+    }
+    .step-card.completed {
+        border-color: #198754;
+        background-color: #f8fff9;
+    }
+    .step-number {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+    }
+    .grading-mode-card {
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid #e9ecef;
+    }
+    .grading-mode-card:hover {
+        border-color: #0d6efd;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .grading-mode-card.selected {
+        border-color: #198754;
+        background-color: #f8fff9;
+    }
+    .results-card {
+        border-left: 4px solid #0d6efd;
+        margin-bottom: 1rem;
+    }
+    .gemini-badge {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 15px;
+        font-size: 0.75rem;
+    }
+
+    /* Rubric Table */
+    .rubric-table th {
+        background: linear-gradient(135deg, #2c3e50, #3498db);
+        color: white;
+        font-weight: 600;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .rubric-table td { vertical-align: middle; font-size: 0.875rem; }
+    .rubric-coverage-bar {
+        height: 8px; border-radius: 10px; background: #e9ecef; overflow: hidden; min-width: 80px;
+    }
+    .rubric-coverage-fill { height: 100%; border-radius: 10px; transition: width .6s ease; }
+    .level-badge {
+        display: inline-block; padding: 2px 10px; border-radius: 12px;
+        font-size: 0.75rem; font-weight: 600;
+    }
+    .level-excellent { background: rgba(39,174,96,.15); color: #27ae60; border: 1px solid #27ae60; }
+    .level-good      { background: rgba(243,156,18,.15); color: #e67e22; border: 1px solid #e67e22; }
+    .level-average   { background: rgba(52,152,219,.15); color: #2980b9; border: 1px solid #2980b9; }
+    .level-poor      { background: rgba(231,76,60,.15);  color: #e74c3c; border: 1px solid #e74c3c; }
+
+    /* Model Answer Panel */
+    .model-answer-panel {
+        border: none;
+        border-radius: 15px;
+        background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+        color: #e2e8f0;
+        margin-top: 1.5rem;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    }
+    .model-answer-panel .panel-header {
+        background: rgba(255,255,255,0.07);
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        display: flex; align-items: center; justify-content: space-between;
+    }
+    .model-answer-panel .panel-header h6 { margin: 0; font-size: 1rem; font-weight: 700; color: #fff; }
+    .gemini-live-badge {
+        background: linear-gradient(135deg, #11998e, #38ef7d);
+        color: #0a2a1a; padding: 3px 12px; border-radius: 20px;
+        font-size: 0.7rem; font-weight: 700; letter-spacing: .5px;
+    }
+    .model-answer-panel .panel-body { padding: 1.5rem; }
+    .ma-notice {
+        background: rgba(52,152,219,0.15); border: 1px solid rgba(52,152,219,0.3);
+        border-radius: 8px; padding: 10px 14px; font-size: 0.8rem; color: #4a9eda;
+        margin-bottom: 1.2rem;
+    }
+    .ma-question-block { margin-bottom: 1.5rem; }
+    .ma-question-block:last-child { margin-bottom: 0; }
+    .ma-q-label {
+        font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+        color: #60a5fa; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;
+    }
+    .ma-q-label::after { content: ''; flex: 1; height: 1px; background: rgba(96,165,250,0.25); }
+    .ma-answer-text {
+        background: rgba(255,255,255,0.05); border-left: 3px solid rgba(96,165,250,0.6);
+        border-radius: 0 8px 8px 0; padding: 14px 18px; font-size: 0.875rem;
+        line-height: 1.8; color: #cbd5e1; white-space: pre-wrap;
+    }
+    .similarity-chip {
+        display: inline-flex; align-items: center; gap: 5px;
+        background: rgba(39,174,96,.2); color: #27ae60;
+        border: 1px solid rgba(39,174,96,.3); border-radius: 20px;
+        padding: 3px 12px; font-size: 0.75rem; font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1><i class="fas fa-graduation-cap me-3"></i>Enhanced Grading System</h1>
+            <p class="text-muted">Advanced AI-powered assignment grading with Gemini-generated rubrics and model answers</p>
+        </div>
+    </div>
+
+    <!-- Progress Steps -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <div class="step-number bg-primary text-white me-2" id="step1-indicator">1</div>
+                    <span>Upload Files</span>
+                </div>
+                <div class="flex-grow-1 mx-3" style="height:2px;background:#e9ecef;"></div>
+                <div class="d-flex align-items-center">
+                    <div class="step-number bg-secondary text-white me-2" id="step2-indicator">2</div>
+                    <span>Set Questions</span>
+                </div>
+                <div class="flex-grow-1 mx-3" style="height:2px;background:#e9ecef;"></div>
+                <div class="d-flex align-items-center">
+                    <div class="step-number bg-secondary text-white me-2" id="step3-indicator">3</div>
+                    <span>Choose Mode</span>
+                </div>
+                <div class="flex-grow-1 mx-3" style="height:2px;background:#e9ecef;"></div>
+                <div class="d-flex align-items-center">
+                    <div class="step-number bg-secondary text-white me-2" id="step4-indicator">4</div>
+                    <span>Results</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 1: Upload Files -->
+    <div class="step-card active p-4" id="step1">
+        <h3><i class="fas fa-upload me-2"></i>Step 1: Upload Student Files</h3>
+        <p class="text-muted">Upload PDF or text files containing student responses</p>
+        <div class="row">
+            <div class="col-md-8">
+                <input type="file" class="form-control" id="fileInput" multiple accept=".pdf,.txt">
+                <div class="form-text">Select multiple PDF or TXT files</div>
+            </div>
+            <div class="col-md-4">
+                <button class="btn btn-primary w-100" onclick="uploadFiles()">
+                    <i class="fas fa-cloud-upload-alt me-2"></i>Upload Files
+                </button>
+            </div>
+        </div>
+        <div id="uploadStatus" class="mt-3"></div>
+        <div id="filesList" class="mt-3"></div>
+    </div>
+
+    <!-- Step 2: Set Questions -->
+    <div class="step-card p-4" id="step2" style="display:none;">
+        <h3><i class="fas fa-question-circle me-2"></i>Step 2: Set Questions</h3>
+        <p class="text-muted">Define the questions that students should answer</p>
+        <div class="mb-3">
+            <label class="form-label">Questions</label>
+            <div id="questionsContainer">
+                <div class="input-group mb-2">
+                    <input type="text" class="form-control question-input" placeholder="Enter question 1">
+                    <button class="btn btn-outline-danger" type="button" onclick="removeQuestion(this)">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            <button class="btn btn-outline-primary btn-sm mt-2" onclick="addQuestion()">
+                <i class="fas fa-plus me-1"></i>Add Question
+            </button>
+        </div>
+        <button class="btn btn-primary" onclick="setQuestions()">
+            <i class="fas fa-arrow-right me-2"></i>Set Questions & Continue
+        </button>
+        <div id="questionsStatus" class="mt-3"></div>
+    </div>
+
+    <!-- Step 3: Choose Grading Mode -->
+    <div class="step-card p-4" id="step3" style="display:none;">
+        <h3><i class="fas fa-cogs me-2"></i>Step 3: Choose Grading Mode</h3>
+        <p class="text-muted">Select how you want to grade the assignments</p>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <div class="card grading-mode-card p-3" onclick="selectGradingMode('standard')">
+                    <h5><i class="fas fa-brain me-2 text-primary"></i>Standard Grading</h5>
+                    <p class="text-muted small mb-2">Multi-dimensional NLP analysis</p>
+                    <ul class="small mb-0">
+                        <li>Semantic analysis</li>
+                        <li>Grammar checking</li>
+                        <li>Rubric scoring</li>
+                        <li>Factual verification</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="card grading-mode-card p-3" onclick="selectGradingMode('gemini')">
+                    <h5><i class="fas fa-robot me-2 text-success"></i>Gemini-Enhanced Grading</h5>
+                    <p class="text-muted small mb-2">AI-powered grading with Gemini</p>
+                    <ul class="small mb-0">
+                        <li>✨ Gemini-generated rubric</li>
+                        <li>✨ AI model answers</li>
+                        <li>✨ Advanced comparison</li>
+                        <li>✨ Enhanced feedback</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gemini API key input -->
+        <div id="geminiApiSection" style="display:none;" class="mt-3">
+            <div class="row">
+                <div class="col-md-8">
+                    <label class="form-label">Gemini API Key</label>
+                    <input type="text" class="form-control" id="geminiApiKey"
+                           placeholder="AIza... (leave blank to use default)"
+                           value="AIzaSyCVe6Qx3pZWgx9JBljSAr31UnXBGhV0sbg">
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button class="btn btn-outline-secondary w-100" onclick="testGeminiConnection()">
+                        <i class="fas fa-plug me-1"></i>Test Connection
+                    </button>
+                </div>
+            </div>
+            <div id="geminiStatus" class="mt-2"></div>
+        </div>
+
+        <div class="mt-4">
+            <button class="btn btn-success" id="startGradingBtn" onclick="startSelectedGrading()" disabled>
+                <i class="fas fa-play me-2"></i>Start Grading
+            </button>
+        </div>
+        <div id="gradingStatus" class="mt-3"></div>
+    </div>
+
+    <!-- Step 4: Results -->
+    <div class="step-card p-4" id="step4" style="display:none;">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3><i class="fas fa-chart-bar me-2"></i>Step 4: Grading Results</h3>
+            <div>
+                <button class="btn btn-outline-primary me-2" onclick="exportResults()">
+                    <i class="fas fa-download me-1"></i>Export CSV
+                </button>
+                <button class="btn btn-outline-secondary" onclick="startNewSession()">
+                    <i class="fas fa-redo me-1"></i>New Session
+                </button>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="row mb-4" id="resultsSummary"></div>
+
+        <!-- Detailed Results -->
+        <div id="detailedResults"></div>
+    </div>
+
+</div>
+
+<script>
+    // ── State ──────────────────────────────────────────────────────────────────
+    let currentSession    = null;
+    let currentStep       = 1;
+    let selectedGradingMode = null;
+
+    // ── Init: create session on page load ─────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', function () {
+        fetch('/new_session', { method: 'POST' })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    currentSession = data.session_id;
+                    console.log('Session created:', currentSession);
+                } else {
+                    showAlert('gradingStatus', 'Failed to create session: ' + data.message, 'danger');
+                }
+            })
+            .catch(err => showAlert('gradingStatus', 'Server error: ' + err.message, 'danger'));
+    });
+
+    // ── Step 1: Upload ─────────────────────────────────────────────────────────
+    function uploadFiles() {
+        const fileInput = document.getElementById('fileInput');
+        const files     = fileInput.files;
+
+        if (!files.length) {
+            showAlert('uploadStatus', 'Please select at least one file.', 'warning');
+            return;
+        }
+        if (!currentSession) {
+            showAlert('uploadStatus', 'Session not ready. Please refresh the page.', 'danger');
+            return;
+        }
+
+        const formData = new FormData();
+        for (const file of files) formData.append('files', file);
+
+        showAlert('uploadStatus', '<span class="loading-spinner"></span> Uploading files...', 'info');
+
+        fetch(`/upload_files/${currentSession}`, { method: 'POST', body: formData })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('uploadStatus', data.message, 'success');
+                    document.getElementById('filesList').innerHTML = `
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2"></i>
+                            ${data.uploaded_count} file(s) uploaded successfully.
+                        </div>`;
+                    moveToStep(2);
+                } else {
+                    showAlert('uploadStatus', 'Upload failed: ' + data.message, 'danger');
+                }
+            })
+            .catch(err => showAlert('uploadStatus', 'Upload error: ' + err.message, 'danger'));
+    }
+
+    // ── Step 2: Questions ──────────────────────────────────────────────────────
+    function addQuestion() {
+        const container = document.getElementById('questionsContainer');
+        const idx       = container.querySelectorAll('.question-input').length + 1;
+        const div = document.createElement('div');
+        div.className = 'input-group mb-2';
+        div.innerHTML = `
+            <input type="text" class="form-control question-input" placeholder="Enter question ${idx}">
+            <button class="btn btn-outline-danger" type="button" onclick="removeQuestion(this)">
+                <i class="fas fa-trash"></i>
+            </button>`;
+        container.appendChild(div);
+    }
+
+    function removeQuestion(btn) {
+        const inputs = document.querySelectorAll('.question-input');
+        if (inputs.length > 1) btn.closest('.input-group').remove();
+        else showAlert('questionsStatus', 'At least one question is required.', 'warning');
+    }
+
+    function setQuestions() {
+        const questions = Array.from(document.querySelectorAll('.question-input'))
+            .map(i => i.value.trim()).filter(Boolean);
+
+        if (!questions.length) {
+            showAlert('questionsStatus', 'Please enter at least one question.', 'warning');
+            return;
+        }
+
+        fetch(`/set_questions/${currentSession}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ questions })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('questionsStatus', data.message, 'success');
+                moveToStep(3);
+            } else {
+                showAlert('questionsStatus', data.message, 'danger');
+            }
+        })
+        .catch(err => showAlert('questionsStatus', 'Error: ' + err.message, 'danger'));
+    }
+
+    // ── Step 3: Mode selection ─────────────────────────────────────────────────
+    function selectGradingMode(mode) {
+        selectedGradingMode = mode;
+        document.querySelectorAll('.grading-mode-card').forEach(c => c.classList.remove('selected'));
+        event.currentTarget.classList.add('selected');
+
+        document.getElementById('geminiApiSection').style.display = mode === 'gemini' ? 'block' : 'none';
+        document.getElementById('startGradingBtn').disabled = false;
+    }
+
+    function testGeminiConnection() {
+        const apiKey = document.getElementById('geminiApiKey').value.trim();
+        showAlert('geminiStatus', '<span class="loading-spinner"></span> Testing connection...', 'info');
+
+        fetch('/test_gemini_connection', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ api_key: apiKey })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.gemini_available) {
+                showAlert('geminiStatus',
+                    `<i class="fas fa-check-circle me-2"></i>Connected! Model: <strong>${data.working_model || 'gemini'}</strong>`,
+                    'success');
+            } else {
+                showAlert('geminiStatus', 'Connection failed: ' + data.message, 'warning');
+            }
+        })
+        .catch(err => showAlert('geminiStatus', 'Test error: ' + err.message, 'danger'));
+    }
+
+    function startSelectedGrading() {
+        if (!selectedGradingMode) {
+            showAlert('gradingStatus', 'Please select a grading mode.', 'warning');
+            return;
+        }
+
+        const btn = document.getElementById('startGradingBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loading-spinner"></span> Grading in progress...';
+
+        const isGemini = selectedGradingMode === 'gemini';
+        const msg = isGemini
+            ? '<span class="loading-spinner"></span> Gemini is generating rubric, model answers and grading...'
+            : '<span class="loading-spinner"></span> Processing with NLP analysis...';
+        showAlert('gradingStatus', msg, 'info');
+
+        const endpoint = isGemini
+            ? `/start_gemini_grading/${currentSession}`
+            : `/start_grading/${currentSession}`;
+
+        const body = isGemini
+            ? { gemini_api_key: document.getElementById('geminiApiKey').value.trim() }
+            : {};
+
+        fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        })
+        .then(r => r.json())
+        .then(data => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-play me-2"></i>Start Grading';
+            if (data.success) {
+                showAlert('gradingStatus', data.message, 'success');
+                loadResults();
+            } else {
+                showAlert('gradingStatus', 'Grading failed: ' + data.message, 'danger');
+            }
+        })
+        .catch(err => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-play me-2"></i>Start Grading';
+            showAlert('gradingStatus', 'Error: ' + err.message, 'danger');
+        });
+    }
+
+    // ── Step 4: Results ────────────────────────────────────────────────────────
+    function loadResults() {
+        fetch(`/get_results/${currentSession}`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    moveToStep(4);
+                    displayResults(data);
+                } else {
+                    showAlert('gradingStatus', 'Could not load results: ' + data.message, 'danger');
+                }
+            })
+            .catch(err => showAlert('gradingStatus', 'Error loading results: ' + err.message, 'danger'));
+    }
+
+    function displayResults(data) {
+        // Summary cards
+        const s = data.summary;
+        document.getElementById('resultsSummary').innerHTML = `
+            <div class="col-md-3">
+                <div class="card text-center"><div class="card-body">
+                    <h5 class="card-title">${s.total_files || 0}</h5>
+                    <p class="card-text text-muted">Total Files</p>
+                </div></div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center"><div class="card-body">
+                    <h5 class="card-title">${s.average_score}</h5>
+                    <p class="card-text text-muted">Average Score</p>
+                </div></div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center"><div class="card-body">
+                    <h5 class="card-title text-success">${s.highest_score}</h5>
+                    <p class="card-text text-muted">Highest Score</p>
+                </div></div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center"><div class="card-body">
+                    <h5 class="card-title text-danger">${s.lowest_score}</h5>
+                    <p class="card-text text-muted">Lowest Score</p>
+                </div></div>
+            </div>`;
+
+        let html = '';
+
+        data.results.forEach(result => {
+            if (result.processing_failed) {
+                html += `<div class="alert alert-danger">
+                    <strong>${escHtml(result.filename)}</strong> — Processing failed: ${escHtml(result.error || '')}
+                </div>`;
+                return;
+            }
+
+            const scoreColor = result.final_score >= 80 ? 'success'
+                             : result.final_score >= 60 ? 'warning' : 'danger';
+
+            const geminiTag = selectedGradingMode === 'gemini'
+                ? `<span class="gemini-badge ms-2">🤖 Gemini — ${result.gemini_used ? 'Live AI' : 'Mock'}</span>`
+                : '';
+
+            // Score bars
+            const scoreBars = [
+                { label: 'Semantic',     val: result.semantic_score,     color: '#3498db' },
+                { label: 'Rubric',       val: result.rubric_score,       color: '#8b5cf6' },
+                { label: 'Grammar',      val: result.grammar_score,      color: '#27ae60' },
+                { label: 'Factual',      val: result.factual_score,      color: '#f39c12' },
+                { label: 'Completeness', val: result.completeness_score, color: '#06b6d4' },
+            ].map(d => `
+                <div class="col">
+                    <small class="text-muted d-block mb-1">${d.label}</small>
+                    <div class="progress" style="height:6px">
+                        <div class="progress-bar" style="width:${d.val}%;background:${d.color}"></div>
+                    </div>
+                    <small style="color:${d.color};font-weight:600">${d.val.toFixed(0)}</small>
+                </div>`).join('');
+
+            // ── Gemini Rubric Panel ──────────────────────────────────────────
+            let rubricPanel = '';
+            const rubric = (selectedGradingMode === 'gemini' && result.gemini_rubric)
+                           ? result.gemini_rubric : null;
+
+            if (rubric && rubric.criteria && rubric.criteria.length) {
+                const scoreMap = {
+                    'Content Accuracy':       result.factual_score,
+                    'Completeness':           result.completeness_score,
+                    'Clarity & Organization': result.grammar_score,
+                    'Technical Terminology':  result.semantic_score,
+                };
+
+                const rubricRows = rubric.criteria.map(c => {
+                    const pct    = scoreMap[c.name] !== undefined ? scoreMap[c.name] : 50;
+                    const earned = ((pct / 100) * c.max_marks).toFixed(1);
+                    const barColor = pct >= 80 ? '#27ae60' : pct >= 60 ? '#e67e22' : pct >= 40 ? '#3498db' : '#e74c3c';
+                    const lvlClass = pct >= 80 ? 'level-excellent' : pct >= 60 ? 'level-good' : pct >= 40 ? 'level-average' : 'level-poor';
+                    const lvlLabel = pct >= 80 ? 'Excellent'       : pct >= 60 ? 'Good'       : pct >= 40 ? 'Average'       : 'Poor';
+                    const pl       = c.performance_levels || {};
+                    const lvlDesc  = pct >= 80 ? pl.excellent : pct >= 60 ? pl.good : pct >= 40 ? pl.average : pl.poor;
+                    const kwHtml   = (c.keywords || []).slice(0, 5).map(kw =>
+                        `<span style="background:rgba(52,152,219,.12);color:#2980b9;border:1px solid rgba(52,152,219,.3);
+                                border-radius:12px;padding:1px 8px;font-size:0.7rem;margin:1px;">${escHtml(kw)}</span>`
+                    ).join(' ');
+
+                    return `<tr>
+                        <td>
+                            <strong>${escHtml(c.name)}</strong><br>
+                            <small class="text-muted">${escHtml(c.description)}</small><br>
+                            <div class="mt-1">${kwHtml}</div>
+                        </td>
+                        <td>
+                            <div class="rubric-coverage-bar">
+                                <div class="rubric-coverage-fill" style="width:${pct}%;background:${barColor}"></div>
+                            </div>
+                            <small class="text-muted">${pct.toFixed(0)}%</small>
+                        </td>
+                        <td>
+                            <span class="level-badge ${lvlClass}">${lvlLabel}</span><br>
+                            ${lvlDesc ? `<small class="text-muted" style="font-size:.7rem">${escHtml(lvlDesc)}</small>` : ''}
+                        </td>
+                        <td><strong style="color:${barColor}">${earned}</strong>
+                            <small class="text-muted"> / ${c.max_marks}</small></td>
+                    </tr>`;
+                }).join('');
+
+                const rubricBadge = rubric.gemini_generated
+                    ? `<span style="background:linear-gradient(135deg,#11998e,#38ef7d);color:#0a2a1a;
+                              padding:2px 10px;border-radius:20px;font-size:.7rem;font-weight:700">● Gemini-Generated</span>`
+                    : `<span style="background:#e9ecef;color:#666;padding:2px 10px;border-radius:20px;font-size:.7rem">○ Default Rubric</span>`;
+
+                rubricPanel = `
+                    <div class="mt-4">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <h6 class="mb-0"><i class="fas fa-list-check me-2"></i>Grading Rubric</h6>
+                            ${rubricBadge}
+                        </div>
+                        ${rubric.general_instructions
+                            ? `<p class="text-muted small mb-2"><i class="fas fa-info-circle me-1"></i>${escHtml(rubric.general_instructions)}</p>`
+                            : ''}
+                        <div class="table-responsive">
+                            <table class="table table-hover rubric-table mb-0">
+                                <thead><tr>
+                                    <th style="width:40%">Criterion</th>
+                                    <th style="width:15%">Coverage</th>
+                                    <th style="width:30%">Performance Level</th>
+                                    <th style="width:15%">Marks</th>
+                                </tr></thead>
+                                <tbody>${rubricRows}</tbody>
+                                <tfoot>
+                                    <tr style="background:#f8f9fa">
+                                        <td colspan="3"><strong>Total Score</strong></td>
+                                        <td><strong style="color:#0d6efd">${result.final_score.toFixed(1)}</strong>
+                                            <small class="text-muted"> / ${rubric.total_marks || 100}</small></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>`;
+            } else {
+                // Fallback rubric table (standard mode or when Gemini rubric unavailable)
+                const fallback = [
+                    { name: 'Content Accuracy',      desc: 'Correctness of facts',       max: 35, key: 'factual_score' },
+                    { name: 'Completeness',           desc: 'Coverage of topics',         max: 25, key: 'completeness_score' },
+                    { name: 'Clarity & Organization', desc: 'Structure and clarity',      max: 20, key: 'grammar_score' },
+                    { name: 'Technical Terminology',  desc: 'Domain-specific vocabulary', max: 20, key: 'semantic_score' },
+                ];
+                const fallbackRows = fallback.map(c => {
+                    const pct  = result[c.key] || 0;
+                    const earn = ((pct / 100) * c.max).toFixed(1);
+                    const bc   = pct >= 80 ? '#27ae60' : pct >= 60 ? '#e67e22' : pct >= 40 ? '#3498db' : '#e74c3c';
+                    const lc   = pct >= 80 ? 'level-excellent' : pct >= 60 ? 'level-good' : pct >= 40 ? 'level-average' : 'level-poor';
+                    const ll   = pct >= 80 ? 'Excellent' : pct >= 60 ? 'Good' : pct >= 40 ? 'Average' : 'Poor';
+                    return `<tr>
+                        <td><strong>${c.name}</strong><br><small class="text-muted">${c.desc}</small></td>
+                        <td>
+                            <div class="rubric-coverage-bar">
+                                <div class="rubric-coverage-fill" style="width:${pct}%;background:${bc}"></div>
+                            </div>
+                            <small class="text-muted">${pct.toFixed(0)}%</small>
+                        </td>
+                        <td><span class="level-badge ${lc}">${ll}</span></td>
+                        <td><strong style="color:${bc}">${earn}</strong><small class="text-muted"> / ${c.max}</small></td>
+                    </tr>`;
+                }).join('');
+                rubricPanel = `
+                    <div class="mt-4">
+                        <h6 class="mb-2"><i class="fas fa-table me-2"></i>Rubric Coverage</h6>
+                        <div class="table-responsive">
+                            <table class="table table-hover rubric-table mb-0">
+                                <thead><tr><th>Criterion</th><th>Coverage</th><th>Level</th><th>Marks</th></tr></thead>
+                                <tbody>${fallbackRows}</tbody>
+                            </table>
+                        </div>
+                    </div>`;
+            }
+
+            // ── Model Answer Panel ───────────────────────────────────────────
+            let modelAnswerPanel = '';
+            if (selectedGradingMode === 'gemini' && result.gemini_model_answer) {
+                const ma     = result.gemini_model_answer.trim();
+                const simPct = Math.round((result.gemini_similarity || 0) * 100);
+                const simColor = simPct >= 70 ? '#27ae60' : simPct >= 40 ? '#e67e22' : '#e74c3c';
+
+                const questions = Array.from(document.querySelectorAll('.question-input'))
+                    .map(i => i.value.trim()).filter(Boolean);
+
+                let blocks = [];
+                if (questions.length <= 1) {
+                    blocks = [ma];
+                } else {
+                    const parts = ma
+                        .split(/\n(?=(?:Question\s*\d+|\d+[.)]\s|\*\*Question\s*\d+))/im)
+                        .map(s => s.replace(/^[\*\s]*Question\s*\d+[\*\s:.\-]*/i, '')
+                                   .replace(/^\d+[.)]\s*/, '').trim())
+                        .filter(Boolean);
+                    blocks = (parts.length >= questions.length) ? parts.slice(0, questions.length) : [ma];
+                }
+
+                const blocksHtml = blocks.map((b, i) => `
+                    <div class="ma-question-block">
+                        <div class="ma-q-label">
+                            <span>Q${i + 1}</span>
+                            ${questions[i] ? `<span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:.75rem;color:#94a3b8">${escHtml(questions[i])}</span>` : ''}
+                        </div>
+                        <div class="ma-answer-text">${escHtml(b)}</div>
+                    </div>`).join('');
+
+                modelAnswerPanel = `
+                    <div class="model-answer-panel">
+                        <div class="panel-header">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fas fa-robot" style="font-size:1.1rem"></i>
+                                <h6>Gemini AI — Model Answer</h6>
+                                <span class="similarity-chip ms-2"
+                                      style="background:rgba(0,0,0,.1);color:${simColor};border:1px solid ${simColor}80">
+                                    <i class="fas fa-chart-line"></i> ${simPct}% student match
+                                </span>
+                            </div>
+                            <span class="gemini-live-badge">
+                                ${result.gemini_used ? '● LIVE AI' : '○ MOCK MODE'}
+                            </span>
+                        </div>
+                        <div class="panel-body">
+                            <div class="ma-notice">
+                                <i class="fas fa-lightbulb me-2"></i>
+                                <strong>What is this?</strong> This is the ideal answer generated by Gemini AI based on
+                                your questions and rubric. Student answers were compared against it to compute scores.
+                            </div>
+                            ${blocksHtml}
+                        </div>
+                    </div>`;
+            }
+
+            // ── Feedback columns ─────────────────────────────────────────────
+            const feedbackCols = `
+                <div class="row mt-4">
+                    <div class="col-md-4">
+                        <h6 class="text-success"><i class="fas fa-thumbs-up me-1"></i>Strengths</h6>
+                        <ul class="small">
+                            ${(result.strengths || []).map(s => `<li>${escHtml(s)}</li>`).join('') || '<li>None detected</li>'}
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h6 class="text-warning"><i class="fas fa-exclamation-triangle me-1"></i>Areas for Improvement</h6>
+                        <ul class="small">
+                            ${(result.weaknesses || []).map(w => `<li>${escHtml(w)}</li>`).join('') || '<li>None detected</li>'}
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h6 class="text-info"><i class="fas fa-lightbulb me-1"></i>Suggestions</h6>
+                        <ul class="small">
+                            ${(result.suggestions || []).map(s => `<li>${escHtml(s)}</li>`).join('') || '<li>No suggestions</li>'}
+                        </ul>
+                    </div>
+                </div>`;
+
+            html += `
+                <div class="results-card card mb-4">
+                    <div class="card-body">
+
+                        <!-- Header row -->
+                        <div class="row align-items-center mb-3">
+                            <div class="col-md-8">
+                                <h6 class="mb-1">
+                                    <i class="fas fa-file me-2"></i>${escHtml(result.filename)}${geminiTag}
+                                </h6>
+                                <p class="mb-0 text-muted small">
+                                    Student: <strong>${escHtml(result.student_info?.name || 'Unknown')}</strong>
+                                    &nbsp;·&nbsp; Words: <strong>${result.word_count}</strong>
+                                    &nbsp;·&nbsp; Sentences: <strong>${result.sentence_count}</strong>
+                                    &nbsp;·&nbsp; Time: <strong>${result.processing_time}s</strong>
+                                </p>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <h3 class="text-${scoreColor} mb-0">${result.final_score}/100</h3>
+                                <small class="text-muted">Final Score</small>
+                                ${result.gemini_similarity
+                                    ? `<br><small class="text-success">AI Similarity: ${(result.gemini_similarity * 100).toFixed(1)}%</small>`
+                                    : ''}
+                                <br><small class="text-muted">Confidence: ${(result.confidence_score * 100).toFixed(1)}%</small>
+                            </div>
+                        </div>
+
+                        <!-- Score bars -->
+                        <div class="row mb-3">${scoreBars}</div>
+
+                        <!-- Rubric -->
+                        ${rubricPanel}
+
+                        <!-- Feedback -->
+                        ${feedbackCols}
+
+                        <!-- Model Answer -->
+                        ${modelAnswerPanel}
+
+                    </div>
+                </div>`;
+        });
+
+        document.getElementById('detailedResults').innerHTML =
+            html || '<p class="text-muted">No results to display.</p>';
+    }
+
+    // ── Helpers ────────────────────────────────────────────────────────────────
+    function escHtml(str) {
+        return String(str || '')
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function exportResults() {
+        if (!currentSession) return;
+        window.location.href = `/export_results/${currentSession}`;
+    }
+
+    function startNewSession() {
+        location.reload();
+    }
+
+    function moveToStep(step) {
+        for (let i = 1; i <= 4; i++) {
+            const el  = document.getElementById(`step${i}`);
+            const ind = document.getElementById(`step${i}-indicator`);
+            el.style.display = 'none';
+            el.classList.remove('active');
+            ind.classList.remove('bg-primary', 'bg-success');
+            ind.classList.add('bg-secondary');
+            ind.innerHTML = i;
+        }
+        document.getElementById(`step${step}`).style.display = 'block';
+        document.getElementById(`step${step}`).classList.add('active');
+
+        for (let i = 1; i < step; i++) {
+            const ind = document.getElementById(`step${i}-indicator`);
+            ind.classList.remove('bg-secondary');
+            ind.classList.add('bg-success');
+            ind.innerHTML = '<i class="fas fa-check"></i>';
+        }
+        const cur = document.getElementById(`step${step}-indicator`);
+        cur.classList.remove('bg-secondary');
+        cur.classList.add('bg-primary');
+        cur.innerHTML = step;
+
+        currentStep = step;
+    }
+
+    function showAlert(containerId, message, type) {
+        const el = document.getElementById(containerId);
+        if (!el) return;
+        el.innerHTML = `
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>`;
+    }
+</script>
+{% endblock %}

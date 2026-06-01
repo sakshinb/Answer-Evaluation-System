@@ -1,0 +1,161 @@
+Name:- Vipul Ghodake
+PRN: 202201040016
+Roll No :- 07
+30/08/2024
+DATE: 30,08, 2024
+BI
+PAGE NO.:
+01
+Q.17 Similarities:- if process management :-
+all os manage processes through
+a
+Scheeles
+allocating CPU, multiple application can run
+Simultaneously. This is essential for multites.
+impriation:- for developers, understanding the os
+Scheduling policies is cutial, white deftura
+developing.
+2.4 memory management: - Os
+handles
+memory
+allocation for application and processes
+Techniques like paging, Segmentation, os
+users to optimire memory.
+Implication memory utilization by
+developers to avoid leaks &
+ensure
+efficiency in memory us, leading
+to better performance with limited ran
+3.4 file System management :- all oss manage
+files through a file os, organizing data
+inter files and directories. Common file
+Sistem include NTFS (Windows), exty
+(min), APFS (maños).
+4.1
+implication:- file System Comptibility
+nue to be considered when creating
+Softuar.
+user interface:- OS offer user interfer
+(UI) for interaction typically (GUI)
+& (CLI) • ex:- windows GUI.
+macos aqua interface & linus Various
+desktop enviroments.
+eudongle
+Teacher's Signature
+DATE:
+,
+PAGE NO.:
+implications - choose target based on its
+UI & user base user find famili
+interfaces across different devices
+easing their interaction with system.
+54 Security management - devinity is care
+function with featuon like usoy authoricate"
+access Controls & encryption buing Standard.
+across all oss.
+implication - developves need to adhere
+to Os decurity when handaling
+Sensitive data.
+Difference:
+Kornel Architecture:- windows - user a
+hybrid Kernel which combines elements.
+of both monglithic & micro Keene archit
+linum - typically useres a monolithic Kound
+macos: - has a hybrid (XNU) Kounel
+Implication:- Verne arechtecture affects
+how they interact with Os at a love
+land, infueling performance & Stability
+2.7 Default file desten
+.
+windows - usves NTFS, Linum uses
+ext 4 ar other Variation like Btrfs
+and macos uses APES.
+implication = need to considor file dy
+tompatibility & performance
+ово
+Teacher's Signature
+b
+DATE:
+PAGE NO.:
+34 Software Compatibility --
+windows - brodest Software Comptibility.
+specially for games & enterprises.
+Software.
+unin - excels in open - Down.
+macos- perford in the than Creative
+appluation
+implication - Developers may need to tailor
+Software to strength of each &
+4.7 System update mechanism:-
+windows - uses windows, automated
+but often critised
+linien - provide parkage manager
+macosi - offer regular updates
+through the app.
+1 5.7 licensing models -
+Joad
+windows + property requiring a paid
+luenc
+lenein - mostly open soward free to
+use
+implication: - developers must navigate
+licensing issues when deploying
+Software i
+Teacher's Signature
+a
+DATE:
+PAGE NO.:
+8.24 function of bootloader: bootloader is
+Small program that initiators.
+hardware & loads the Os. Keenel
+I devring the boot
+• it is svest Software
+to run when a computer is
+rouweed on following
+into
+process.
+Blu
+Key function - 17 Joeding Of Kerne
+tout bader locates, the US Korne
+on disk and loads on disk
+2. Y hardwary initialzation:- before the
+Os takes over the bootloader
+Sets up basil hardware.
+3.4 Dual - Booting Support:- choose
+between multiple installed os.
+at startup.
+4.4 Contiguountion options - usves
+Can modify boot options, such as
+Kvend parameters
+Comparision of bootloader :-
+1.7 GRUB:- advantages:-
+highly contigurabi & dupport
+can handle complex boot. Junio
+Support wide range of filedystem
+and architectures
+Teacher's Signature
+classmate
+Date
+Page
+Disadvantages:- Configuration can be complen
+euroves in GRUB Configurations.
+2Y4LO (Linun loader) :-
+adv-7dumple & Straight forward.
+2.4 one of widely used bootloader.
+dis advantages:- 1.7 lacks the flexibility of GRUB
+2.4 It not Cossutly contigured changs
+requn LILO reinstall
+3.7 windows boot managu:-
+advantages 17 integrated with windary
+-
+24 dimly intertau wh friends
+-
+dis duatag limited Support for non-
+mundors opertains dystem.
+less fusible compento GRUB.
+Tmplication for un
+or devlops. :-
+-
+When benefit from bootloader by flexibits.
+different O).
+dendops- hud to understand

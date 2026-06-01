@@ -1,0 +1,105 @@
+11
+→
+Name:- Girish Lohkare
+Roll No 14
+PRN: 202201040025
+Divi B (BI)
+Operating System
+(Graded Resignment - 01)
+key Similcorities in operating system.
+classmate
+Date
+Page
+Process & Memory Management: All as handle multi-
+tasking
+and memory
+allocation, ensuring efficient
+and smooth performance for users. Developers must
+optimize their application for these functions
+Ⓒ File System & Device Management: Os
+(3)
+manage
+data
+storage, file access and hardware components, providing
+consistent file access & device usage.
+line
+Cheer Interface: Os offer graphical and command
+Interface, influencing user experience and
+requiring developers to design intective applications
+windows
+Key Difference in operating system iQ
+①Kernel Architecture: Varies access os
+hufaid, dinux monolithic) Impacting performance &
+Keep
+stability. Davulopers must aptimize for the specific
+Security Models: Different
+as have distinct security
+profocals, affecting user data protection. Devleepers need
+implement security measures accordingly
+⑤ Compatibility & Ecosystem. Software availability &
+compatibility differ veicely with windows being
+ato
+more
+commercial Linux
+open
+source, & mac os
+integrated with Apple Developers needs to conside
+Access platform compatibility.
+te
+9.2)
+t
+The Bootloader
+when a
+is the software that initialize
+hardware and loads the operating system (05) into
+computer starts It locates the os
+and transfer contral to it enabling the 09
+memory
+kernel
+to run.
+Comparison of Bootloaders
+①GRUB (Grand Unified Bootloader).
+Advantages: • #exibility = supports multiple os
+*
+*
+&
+supports multiple os & configuration
+• User friendly: offers a graphical Interface
+Command line
+• Customize: Easily extendable
+Disadvantages: • Camplexity: Can be overwhelming for
+②LILO
+*
+simple setups toston
+Size: Larger footprint
+(Linux Loader)
+Advantages: •Simplicity: Easy to configure
+Small Stre: Minimal resource
+шве
+Disadvantages: • Limited flexibility: No multiboot support
+Outated : Lacks modern features, mostly
+e
+bsolete
+⑤windows Boat manger.
+*
+Advantages: • Integrated with windows Seamless operation
+with windows OS
+Clour friendly Easy configuration & recovery
+Security Supports Secure Boot.
+classmate
+Date
+Page
+Disadvantage: • Limited flexibility Primarily supports
+windows
+• Less customize Few options for
+modification.
+Pour on
+ROM Code
+↓
+Bootloader
+* Booting Device
+(eMMC, NAND,USB)
+(boots args,
+, MACHID)
+Kernel
+Platform

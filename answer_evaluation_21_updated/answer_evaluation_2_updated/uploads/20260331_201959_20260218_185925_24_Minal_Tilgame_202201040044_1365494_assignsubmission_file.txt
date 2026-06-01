@@ -1,0 +1,273 @@
+Name
+Minal Tilgame
+class- Ty [B] 2
+Roll no - 24
+PRN - 202201040044
+Cast
+Q.1.
++
+-
+Os Assignment 1
+clASSMAte
+Date
+Page
+*
+Similarities and differences in operating
+system core functions
+s
+while the sources primarily focus on
+defining operating systems and their
+Functions, they offer limited information
+on the similarities and differences
+between operating systems in performing.
+these function.
+Here's a summary based on the
+available in formation:
+core functions: All operating systems
+De regardless of their type, share core
+A
+R
+*
+*
+*
+19
+functions like:m
+process management: Managing the
+execution of programs, includi.
+ng
+single - threaded and meelt threaded
+processes. Nd
+memory management: Allocating, tacking
+and managing system memory for
+efficient program execution.
+الحاد
+Storage Management: Providing a
+logical view of storage, managing
+лоді
+files and directores, and interacting
+with storage devices.
+ad
+1/0 subsystem: Handling input and output
+operations, including buffering,
+caching, and device driver
+Smopit paiM
+CLASSMAte
+Date
+Page
+k
+security management: Ensuring system
+security through authentication,
+authorization, and protection mechanisms,
+• Differences and Implications: The
+K
+Ne
+sources mainly categorize operating
+Systems based on their capabilities
+and target applications:
+سر
+Batch Processing OS: processes jobs in
+batches without user interaction. This
+is suitable for large-scall, non- interactive
+tus ICs, but not ideal for interactive
+application.
+Multi-useros: Allows multiple users
+to
+access a single system simultureourly.
+This dequres robust user management
+resource allocation, and security features
+impacting system performance depending
+on the loud
+Multitasking os:
+Enables
+a single user
+concurrently
+run multiple tusks
+тейтре
+to oun
+This improves user productivity but
+demands efficient CPU scheduling and
+resource management for seamless
+operation.
+Real-Time os. Designed for time.
+critical applications with stricts deadline
+These systems prioritize real-time
+responsiveness over throughput impacting
+Scheduling algorithmns and resource
+allocation strategies.
+ystem
+classmate
+Date
+Page
+my.
+* Embedded OS: Talored for specific
+embedded systems with limited resources
+These systems are often optimized for
+size and efficiency, impacting the range
+Runctionalities and development.
+☆
+200
+of
+R
+Implications
+for
+users and Developers:
+19€
+1) users: The choice of operating system affects
+system performance, security, usability,
+and the range of supported application.
+2
+olood ONT
+Developers & Different os architectures,
+system calls, and APIs influence the
+design, development, and portability
+Of software applications. Spud
+Ans:29 = 0
+2-
+A bootloader is a critical software
+component responsible for loading
+an operating system into memory when
+a computer is powered on. the Here's
+how you can explain it:
+Initicu Role: The bootloader is the first yes
+program that runs when a computer starts
+up. It is loaded by the system's firmware +
+(BIOS or DEFU
+Loading the kernel:
+Of the
+The
+primary
+Runn
+bootloader is to load the os
+Kernel into memory. The kernel is the
+кетел
+wre of the operating system, managing
+Date
+Page
+S
+system resources. and hardware.
+3. Hardware initialization: Before the
+kernel is loaded, the bootloader
+2c.
+S.
+2.
+initializes essential hardware.
+components, such as memory and
+cpu, to prepare the system for the US.
+сри,
+selecting an os: on systems with
+multiple operating systems, the bootloade
+presents a menc allowing users to choose
+which of to loud.
+Passing Parameters: The bootloader
+can pass parameters to the OS kernel
+to customize the
+boot process, such
+I as specifying sun levels or enabling
+debugging.
+comparison and Analysts Of Different
+Bootloaders.
+Obsalfood A
+J. GRUB (Gidend unified Booloader) in
+- Features: GRUB is
+a poweful and
+flexible bootloader that supports.
+multiple oss, large disks, and various
+JA Bile systems. It has a command- Ime
+interpruce and can be easily customized
+Houstr
+2
+Ava Advantages: (1971
+છે.
+20180
+supports complex boo+ Scenarios,
+such as dual- booting multiple
+OSS
+6
+Date
+Page
+ClASSMAte
+Date
+Page
+Allows for easy kernel upgrades without
+needing to rewrite the
+to rewrite the entire bootloader
+configuration. can read from different
+systems. including ext 4, FAT32,
+D
+file
+and NTFS.
+Disadvantages:
+complex configuration files, which may
+be challenging for beginners.
+Larger in size compared to other
+boo Hoaders which can increase boot
+time slightly
+4. LILO (Linux loader):
+-
+Features: LILO is an
+older and
+1
+Simplers bootloader, traditionally
+used in linux distributions - It
+requires manual configuration and
+does not have a command-line
+interface.
+Advantages:
+simplicity: Easy to configure and
+use for straightforwards boo + proceries
+The lightweight, with as malles footprint
+than GRUB
+classmate
+Date
+Page
+DO
+9
+Disadvantages:
+9176
+pass a ली. 201011A
+Lack Of Plexibility : It must
+It must be deinstalled
+every time changes are made to
+configuration
+эти
+J
+the
+Limited support for modern features like
+large disks or
+multiple file systems.
+window Boo+ manager:
+その
+xsJqmos
+d
+Features: Windows Boot manager is the
+too default bootloader for window os. It is
+part of the windows Boot configuration
+Bara Store.
+)
+1
+Advantages:
+resto
+21011)
+21
+دارد
+Integrated with the windows os,
+Offering seamless boot processes for
+windows Systems.
+m
+GUI-based configuration via tools like
+'bcdedit', making it more user, friendly
+for those familiar with windows.
+Disadvantages:
+Sara
+limited
+to
+sigmia
+booking windows operating
+Terr
+systems; Ten flexible for dual-booking
+with non - windows OSS-
+nos
+less customization averlable compared
+TO GRUB.
+то
+-

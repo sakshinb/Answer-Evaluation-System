@@ -1,0 +1,219 @@
+OiJ
+Name:- Tejas Pendam
+Division! - B1
+PRN 202201040017
+MSID: 08
+M T W
+Page No.:
+T
+F
+S S
+Date:
+다
+YOUVA
+key similarities and differences of windows and
+abai linux
+similarities
+་
+os bos
+1) Process Managment - Both windows and Unure
+ang handle process managment efficiently. They manage
+"
+the Geation Scheduling, and termination of
+blocked and
+processes using similar concepty, like multitasking
+procion states (running, waiting,
+anwprocent. priority. my tonggo
+is
+(2) Memory Managment Both OS wie i similar
+memory managment techniques such as paging
+Dout and segmentation, to optimize the use of RAM
+boys and ensures stability is bas shal
+•
+j
+3.) File Systems Both support hierarchical file systens
+• allowing files to be organized in directories
+and subdirectories.They support various file
+systems for ex:.
+NTFS
+, EXT4D, XFS CFc
+Substan: 4), Netis,orking capabilities Both have robust
+ban (networking capabilities that support a wide
+Bot I range of networking protocols and services.
+They provide tools for managing network
+ng IP addresses, and
+nor of connections, Configuring.
+managing. DNS sertings. sinhq..
+-
+525) Security and use: Permission: Both OS have
+and built-in security modely that enforce user
+permissions and accent. Morever Control to
+ensure the system's integrity, windows uses
+ACIL System (Accent control: List )
+DAL Libes to
+an
+Differences
+1) User - Interface
+accross its
+windows has a consistant GUI
+versions. It focusers on uses freindy
+and ease of use, which appeals to non-techno-
+a bucal user Linux offers multiple desktop
+envionments (e.g,, GNOME, KDB): providing was
+with flerobicity in choosing the
+them best
+the UI that suits
+Fond
+дате
+games-
+(2) Software and Application. Support: Windows has
+extensive support for.commercial software,
+inderding many enterprise applications.
+Linure has support for many open-source
+applications, and some commercial softwares.
+Source code and Licensing: - windows po developed
+and owned by Microsoft Users
+do not har
+acer”) to the source code. Lininis open-source
+• like the
+software distributed under licenses
+GNU
+HTM
+4) Package Managment
+24/104154
+windows is typically instated
+via executable files (.exe.or.msir) and users
+often need to download and install Software
+from.
+the wed or physical media. Linus uses
+package managers (e.g. APT, YUM ] to install.
+update and manage software m
+5) System Customization !! - Windows is United
+compared to linvert while users can change
+themes, wallpapers and som, settings,
+deeper system modifications reques third-party
+tools or hacking the system. Unux is
+highly customizable at
+every
+Jevel
+'
+from the
+GUI to the Kernel
+07.
+->>
+M T
+W
+T
+Page No.:
+Date:
+F S S
+YOUVA
+A bootloader is a critical component in the
+boot process. It is a small program that loads the
+operating system kernel into
+evential system hard ware
+memory and in Haures
+The botwo bootloader is
+1
+responsible for preparing, the system environment I
+for the
+Os to zuri by performing several
+key functions:-
+16
+1) Initialization. of Hardwares
+The bootloader
+initializes essential hardware components like CPU,
+memory and peripheral device, to: prepare the
+System for as loading the
+2) Loading the Kernel:- The bootloader locates the
+OS kernel images from the bootable device.
+and loads it into the system memory.
+The
+Kanel is the core part of the Os that manage
+hand wae and software resource.
+5) Goviding a Boot Menu: - It often provide a book
+menu that allows users to select
+between
+multiple OS or kernel configurations. This is
+particularly useful for systems with dual or
+multiboot setups almost
+4) Parsing Boot Parameter
+It can pass specific
+parameters to the kernel, which can infuence
+how the OS starts.
+5) loading Initial Ram Disk
+:- some booHaaday
+an initial Rod RAM Disk
++
+which
+temperary root file systemy and nece. Ontains
+drivers or scrupts required
+to mount-
+the
+actual root file system.
+MT
+Page No.:
+Date:
+T
+W
+F S S
+YOUVA
+GROB
+LILO
+Features
+Advantages
+Didduentes
+It is highly flexible Highly costomizable. Moei complene
+and powerful bootloads with support for to configure
+widely used in Unux multiple os compared to
+distribution to odbio 2008
+It is an older boot -
+loader for Linux that
+as popular before
+GRUB became standard
+"
+LILO
+lack of advanced.
+simple and light -
+weight, maring
+features such as
+ان
+it easy to setup filesystem
+and configureito
+and configure its
+Windown It is :)
+slipport
+designed spets integrated with Does not suppet
+cipically, to load the
+windos OS but suppery
+11/chain-loading other 21
+bootloaderind
+3
+32+
+the windows or, as.
+bribool 20
+as many filesystem
+as GRUB
+1905N
+ர் 10
+20
+ohohoi ti choal ban
+Non-
+ft 20 t
+- Pourr, ON.
+des wted
+419132
+loub atas
+9nbind
+X-Blois (from ROM)
+29 H
+Bootloader (from, boot device )
+2009 1008
+kernel
+operating
+120
+All System
+book
+blood
+1000
+MAS 09 10

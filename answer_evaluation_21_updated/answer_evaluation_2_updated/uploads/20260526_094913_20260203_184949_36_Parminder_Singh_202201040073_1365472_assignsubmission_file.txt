@@ -1,0 +1,369 @@
+Date
+Page
+how
+Name : A Parminder Singh
+Div
+B
+Roll no: 38
+PRN no
+(1) Summarize
+202201040073
+the
+key
+Similarities and differences in
+Various
+Corc
+functions
+and
+the
+and
+developers.
+Ans: Operating
+Like
+resources
+Usen
+interface probi
+and
+file
+system
+•
+handling
+dod
+Some
+of the
+comparison
+of
+windows.
+and
+Linum
+and
+are 8-
+similarities
+operating systems perform their
+implications for users
+systems (OS) perform similar core function
+managment.
+Resource
+Linux
+manage
+Core functions!
+Management :- Both, window and
+CPU, memory and
+storage, but
+Linu
+often
+offers
+more
+control
+over thes
+resources
+which
+appeals
+to
+developers
+7
+,
+system
+administration.
+(2) User Interface - Window
+GUI
+widely
+Used
+Linun
+offers
+both
+CLI
+favoured
+b
+and
+automation.
+Provides
+a user-friend
+"by general consumers.
+and powerful
+A
+GUI's
+dardlopers
+for scripting
+Difference -
+Aspect
+Kernel
+Windows.
+Hybrid Kernel combining
+clASSMAte
+Date
+Page
+Lihon
+Monolithic kernel.
+Architecture microkernel and monolithic which allows for
+•for compatibility & extensive customization
+A better performance
+aspects
+Performance
+tuning
+(2) User
+Interface
+Primarily a Graphical user
+Offer both GUJ
+interface (GUI) with op- (various desktop
+tion options,
+for command environments) and a
+Line interface (CLI) via
+powerful CLIles
+command Prompt or powershor Bash, 2sh) for
+Improved security features
+though historically more security with
+(3) security.
+Model
+advance operation
+Strong multi user
+Susceptive
+bo
+viruses
+$ malware
+der
+to its managmat known
+widespread
+USC.
+(4) Cost
+Typically requires
+Paid lisunce
+(5) System updates Regular updates requires
+often
+restarts
+robust permission
+for its stability
+and
+security
+in serven
+Churche
+Free and open
+counce with variou
+distribution,
+frequent updats with
+most
+changs bing
+applied
+CLASSMAte
+Date
+Page
+B20
+Implications:oo
+Por users:
+Windows
+دار
+ideal
+for
+general use
+and
+gaming
+Customization.
+while Linde
+is
+Be preffered for
+and
+development.
+Por Developers :- Windows
+Windows offens
+a
+brood
+Software
+cw.system
+but
+Linun
+'
+provides
+greater flexibilit
+and
+control, making
+ideal
+for
+Serven
+2
+development
+environment.
+921
+Angui
+Function of
+thi
+BootLander
+A
+bootloader
+is
+a
+fundamental component
+Operating
+system
+boot
+of the
+process
+It
+is
+responsible
+for
+(1) Initialization:
+After the
+system firmware (BIOS
+and
+UEFI) initializo the hardwar
+£,
+th
+bootloaden
+takes
+Control
+of prepares the system
+environment.
+(2) Kernel loading
+The bootloader
+Locates
+and
+loads.
+the
+operating system kernel
+It
+ensures
+that
+the
+into memory
+Kernel
+is correctly placed
+and
+that
+system.
+resources
+are
+allocated
+properly
+(3)
+Boot configurator:- It
+provides
+a
+mechanism for
+CLASSMATE
+Date
+Page
+Tor
+Selecting
+Kernel
+blw
+configuration
+multiple operating.
+If
+mone
+than
+or
+system? oc
+is installes
+4
+Hardware Abstract :.
+-
+Abstract s
+-
+Level hardw
+detaits, allowing the
+the operating
+System
+eable
+to
+Load
+in
+a
+consistent
+and manag-
+environment.
+$
+E
+Comparison
+GRUB Grand
+of
+different Bootloaders
+Exp
+Fro
+Unified
+BootLeaders)
+Advantage:- It
+is
+verstality
+,
+dynamic configuratio
+comprehensih Support Graphical meno
+Disadvantages: Thi
+enten sih
+feature set
+GRUB relatively
+relatively large compared
+mabes
+to
+Simples
+boot loaders.
+(2)
+LILO
+(Linun
+Loader
+Advantage
+LILO', configuration Is Straight
+wwww
+it
+Suitable
+forward R
+for
+easy
+Users
+to
+understand making
+Who
+need
+a
+simple
+Dister Disadvantages!
+LILO
+deval does
+not supp
+dynamic
+configuration changes.
+Lacks
+advantage,
+features such as
+a
+graphical menus
+Limiting
+Ust
+interactio to
+tentual option
+classmate
+Date
+Page
+(3)
+Window
+Boot Manager!
+-
+Advantage:-
+It
+is Integration
+, easy
+to use
+automatic
+recovery
+.
+Disadvantage
+It is
+Limited
+flembility over
+رہتا op
+-
+6-
+customization
+Сили
+compared
+to
+GRUB
+Power
+on
+ROM
+code
+Booting
+device
+Bout loader
+Kernel
+↓
+Platform

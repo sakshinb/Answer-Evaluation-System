@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+
+{% block title %}Advanced Grading System - Home{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center py-5">
+                <h1 class="display-4 mb-3">
+                    <i class="fas fa-robot me-3"></i>
+                    Advanced Grading System
+                </h1>
+                <p class="lead mb-4">
+                    Comprehensive AI-powered assessment with multi-dimensional analysis and Gemini AI integration
+                </p>
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="{{ url_for('enhanced_grading') }}" class="btn btn-light btn-lg">
+                        <i class="fas fa-robot me-2"></i>
+                        Enhanced Grading (AI)
+                    </a>
+                    <a href="{{ url_for('grading_interface') }}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-brain me-2"></i>
+                        Standard Grading
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="row mb-5">
+    <div class="col-12">
+        <h2 class="text-center mb-4">
+            <i class="fas fa-star me-2"></i>
+            Key Features
+        </h2>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 text-center">
+            <div class="card-body">
+                <i class="fas fa-brain feature-icon"></i>
+                <h5 class="card-title">Semantic Understanding</h5>
+                <p class="card-text">
+                    Advanced NLP analysis to understand conceptual grasp and explanation quality
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 text-center">
+            <div class="card-body">
+                <i class="fas fa-list-check feature-icon"></i>
+                <h5 class="card-title">Rubric-Based Scoring</h5>
+                <p class="card-text">
+                    Comprehensive evaluation against custom rubrics with detailed coverage analysis
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 text-center">
+            <div class="card-body">
+                <i class="fas fa-spell-check feature-icon"></i>
+                <h5 class="card-title">Grammar & Language</h5>
+                <p class="card-text">
+                    Automated detection of grammar, punctuation, and writing quality issues
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 text-center">
+            <div class="card-body">
+                <i class="fas fa-fact-check feature-icon"></i>
+                <h5 class="card-title">Factual Verification</h5>
+                <p class="card-text">
+                    Validates factual claims and technical accuracy using knowledge bases
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 text-center">
+            <div class="card-body">
+                <i class="fas fa-comments feature-icon"></i>
+                <h5 class="card-title">Detailed Feedback</h5>
+                <p class="card-text">
+                    Personalized feedback with strengths, weaknesses, and specific suggestions
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 text-center">
+            <div class="card-body">
+                <i class="fas fa-chart-line feature-icon"></i>
+                <h5 class="card-title">Analytics & Reports</h5>
+                <p class="card-text">
+                    Comprehensive analytics with exportable reports and visualizations
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- How It Works Section -->
+<div class="row mb-5">
+    <div class="col-12">
+        <h2 class="text-center mb-4">
+            <i class="fas fa-cogs me-2"></i>
+            How It Works
+        </h2>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-md-3 mb-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px; margin-bottom: 1rem;">
+                    <span class="h4 mb-0">1</span>
+                </div>
+                <h6 class="card-title">Upload PDFs</h6>
+                <p class="card-text small">
+                    Upload student assignment PDFs for automated text extraction
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <div class="rounded-circle bg-success text-white d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px; margin-bottom: 1rem;">
+                    <span class="h4 mb-0">2</span>
+                </div>
+                <h6 class="card-title">Set Questions</h6>
+                <p class="card-text small">
+                    Define the questions and model answers for comparison
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <div class="rounded-circle bg-warning text-white d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px; margin-bottom: 1rem;">
+                    <span class="h4 mb-0">3</span>
+                </div>
+                <h6 class="card-title">Configure Rubric</h6>
+                <p class="card-text small">
+                    Set up grading criteria and component weights
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <div class="rounded-circle bg-info text-white d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px; margin-bottom: 1rem;">
+                    <span class="h4 mb-0">4</span>
+                </div>
+                <h6 class="card-title">Get Results</h6>
+                <p class="card-text small">
+                    Receive detailed scores and feedback for each student
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Section -->
+<div class="row mb-5">
+    <div class="col-12">
+        <h2 class="text-center mb-4">
+            <i class="fas fa-chart-bar me-2"></i>
+            System Capabilities
+        </h2>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-md-3 mb-4">
+        <div class="stats-card card text-center">
+            <div class="card-body">
+                <div class="stats-number">5</div>
+                <h6>Analysis Components</h6>
+                <small>Semantic, Rubric, Grammar, Factual, Completeness</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="stats-card card text-center">
+            <div class="card-body">
+                <div class="stats-number">16MB</div>
+                <h6>Max File Size</h6>
+                <small>Support for large PDF documents</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="stats-card card text-center">
+            <div class="card-body">
+                <div class="stats-number">∞</div>
+                <h6>Batch Processing</h6>
+                <small>Process multiple assignments simultaneously</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="stats-card card text-center">
+            <div class="card-body">
+                <div class="stats-number">CSV</div>
+                <h6>Export Format</h6>
+                <small>Detailed results in spreadsheet format</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Call to Action -->
+<div class="row">
+    <div class="col-12">
+        <div class="card bg-light">
+            <div class="card-body text-center py-5">
+                <h3 class="mb-3">Ready to Transform Your Grading Process?</h3>
+                <p class="lead mb-4">
+                    Experience the power of AI-driven assessment with comprehensive feedback and analytics
+                </p>
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="{{ url_for('grading_interface') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-rocket me-2"></i>
+                        Start Grading Now
+                    </a>
+                    <a href="{{ url_for('results_viewer') }}" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-eye me-2"></i>
+                        View Sample Results
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

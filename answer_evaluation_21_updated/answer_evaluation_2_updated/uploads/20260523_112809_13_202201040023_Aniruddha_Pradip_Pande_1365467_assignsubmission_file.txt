@@ -1,0 +1,191 @@
+Name: Aniruddha P. Pande
+202201040023
+PRN
+Roll No: 13
+①Let Compare Windows and Linux to
+Div: B1
+Date
+Page
+OS TA-I
+to highlight key
+Similarities and
+differences.
+Kernel
+Similarities;
+c) Resource Managment: Both Windows and Linux officiently manage
+hardware resources like CPU, memory storage, and 1/0 devices. They ensure
+that multiple applications
+simultaneously without interfering.
+with each other.
+and
+can run
+(ii) Process and Task Management: Windows and Linux Handle multitasking
+process scheduling, allowing wers to run multiple applications
+Simultan truly. Both use Scheduling algorittons to prioritize tasks, ensuring
+efficient CPU utilisation:
+(iii) File Systems: Both OS we hierarchical file systems to organise date.
+windows primarily
+shows file
+wel NTFS while Linux wes various file system like
+exth, Btrfs or XFS.
+Differences inceton
+Hot
+торт
+Windows incl
+Dowed Linux
+system
+11 It wes hybrid kernel that combines: ⑦It has a monolithic kernel, where most
+Intro Design element. It includes core system
+Components and device drivers within
+User
+the Kemel
+2 known for its wer-friendly GUI
+interface with a consistent look and feel
+across versions.
+os functions run in a single large process
+in Kernel mode
+②offers various destop environments,
+allowing
+allowing users to choose or customise
+their interface.
+and
+Customization ☹ offers some level of Customization
+9 but is more limited Compared to
+flexibility Linux. It aims for a consistent wer
+experience with fewer options.
+Approach
+Security: ③More frequently targeted by
+-malware due to its large wer bat.
+It requires no bust third-party
+antivirus software and regular
+regular
+③Highly Customizable, allowing wers
+J
+Date
+to modify curgoste
+every cuspecte
+Page
+the 05, from the desktop environment to
+system configuration.
+16 Generally considered more secure due to
+it's open-Source nature, Smaller wer hase
+to for cuyers to configure
+(and ability
+(security settings.
+at a
+granular level.
+updates to maintain
+gecurity
+:
+Implications for Users bla
+• Ease of Use: windows is generally easier to we for most users due to its
+familiar interface and broad software Support. Linux, while more flexible, can
+for wers unfamiliar with its environment and command-line
+be challenging
+tools
+• Security:
+• Security: Lincix is often
+: Linuxlis often prefered for users concerned about
+privacy, while windows wers need to be more proactive in
+for users concerned about security and
+threats. needs
+Implications for Developers":"
+managing security
+Development Environment : Linux is favored by developers, especially those
+working on open-source projects, due to its powerful Command line tools,
+Scripting capabilities, and compatibility with Various programming Languages.
+windows, however, is widely used for developing applications
+broad wer base, including enterprise environments.
+• Target Audience : Windows developers have access to a larger market
+Lincluding gaming, enterprise and general consumer applications. Linux developers
+often forw on server-side applications, system wilities, or
+specialized
+open source software.
+open
+221
+Date
+Page
+②The bootloader is a critical program in the operating system boot process.
+Its primary function is to load the operating system kernel into memory
+and start the System.
+Functions of a Bootloader:
+hardware
+① Initial Hardware Setup: The bootloader initializes
+песенату
+Components, like memory and Storage, to prepare the cystem for loading the os
+③ Kemel loading : It locates the operating systems Kernel on the disk, loads it
+Third into memory,
+and transfers Control to the kernel to begin the Is boot process.
+③ Dual boot/Multiboot Management: For systems with multiple operating
+installed, , the bootloader presents a menu to the wer to choose
+Systems
+0
+bouwwhich of to boot.
+bean
+1④) Configuration and Reevery options; Bootloaders often offers
+ure boot
+Configure
+options to
+parameters, enter recovery modes , or pass specific
+Commands to the Os Kernel.
+Comparison
+Comparison of Different Bootloaders:
+①GRUB (GRand Unified Bootloader);
+• Features; (i) supports multiple Oses and filesystems (exth, NTFS, FAT32).
+cii) offers a cuer-
+er-friendly
+menu for
+Oses.
+selecting
+Ciii Xan boot from network sources, logical partitions, and
+non-standard setups.
+cius Highly configurable with support for scripts, themes and
+operations.
+Command-line
+Advantages
+(i) Versatile and powertal fibost
+Complex multiboot
+Suitable for Complex
+Setupt
+Disadvantages
+(i) Comp
+(con
+Date
+Pags
+rii Actively maintained and widely cii) Configuration errors can lead to boot
+used in Linux distributions. issues requiring manual intervention.
+(iii) Strong Community Support
+and extensive documentation
+3 LILO (Linux Loader
+Spol
+•Features "itive que
+(3) An older bootbader for linux that loads the 09 by locating
+05. the
+(cii) Simplex and Smaller Compared to GRUB ours
+Kernel directly.
+nere hood enot ciii) Dren't depend
+on
+• Advantages and
+specific file systems to. Locate the
+bead
+Hum
+Bmplicity and ease of we for ①No longer acti
+3 Lower
+hosting
+ower memory
+Suitable for older
+footprint, making it
+Systems.
+kemel-
+Disadvantages
+maintained, with
+having
+most distributions
+GRUB
+buitorapila
+moved to
+Lacks advanced features like multiboot
+menus and dynamic cont
+dynamic configuration.
+110.9.00
+auto bpbante-no

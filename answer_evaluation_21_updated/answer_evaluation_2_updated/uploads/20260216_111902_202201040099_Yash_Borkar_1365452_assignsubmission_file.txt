@@ -1,0 +1,228 @@
+Name: Yash Borkar
+PRN:
+202201040099
+Batch B-3
+Roll
+51
+clASSMAte
+Date
+Page
+So babe nicer 77
+9.1
+zwalnic
+&
+Operating Systems
+Systems are
+managing
+hardware &
+essential for
+software resources.
+in computing
+•Windows & lin ux are two
+of the most
+each with
+unique features.us.
+204649
+681
+most popular OS
+Similarities Between Windows and Linux
+17 Process Management on v
+27
+37
+of 90
+head
+Both manage multiple processes simultaneously,
+multitasking without conflicts.
+ou allow
+Lowing
+Memory Management in rot win birt
+Each allocates
+memory efficiently, preventing
+and optimizing performance.
+crashes
+gement
+File System Manag
+utivuoz
+Both organize and manage files, enabling
+create, delete, and
+2ww bow Users to
+47
+securely belyd
+access them
+File S Device Management itasimatavo
+They communicate with hardware through
+aitid device drivers,
+tidodevice drivers, ensuring compatibility
+functionality.
+57
+and
+User Interface:
+Both provide
+focusing on
+both
+GUI
+user interfaces, with Windows
+GUI
+and
+and
+command-line
+Linux offering
+options.
+depl
+CASSMAte
+Date L
+Page
+Differences Between
+windows and
+Linux
+Operating system.
+12
+t
++> Cost:
+27
+witted Unitisanal and loadabl
+Windows typically requires a purchase,
+while many linux distributions are free
+and open
+source
+Software Compatibility:
+• Windows supports a broader range of
+commercial software,
+need
+While
+linux may
+alternativer has work
+1437 User Experience
+w
+Windows provides generally move user-
+friendly for non-techincal Users M
+get whereas Linux cam have a need of
+• learning curved learn
+security:
+">
+add Linux is often
+2 22 its
+٢٤
+seen as more secure due to
+while windows
+malware
+its open-source nature,
+is move targeted by
+57 Customization: im
+(Linux offers extensive customization options,
+while windows has
+limited capabilities.
+Q.2
+CLASSMAte
+Date
+Page
+*
+The
+boot loader
+is a
+the operating
+operating system
+vital component in
+boot
+responsible for initializing.
+loading the
+the Os kernel
+process,
+hardware,
+and transferring
+control to the operating system.
+Different
+LILO, and
+bootloaders,
+such as GRUB,
+cater to
+Windows Boot Manager,
+have unique features that
+Various
+User needs.x
+Understandi
+nding.
++ of Bootloader Functons
+نام داد را دار
+The bootloader performs several key
+Functions: bo
+1> Initializing hardware :
+27
+37
+a>
+systems
+Prepares the
+for booting, albo rezu
+Loading the Kernel load the os kernel
+into
+memory.
+passing Control:
+kernel.
+Transfer
+Conhol
+to the
+User Interface : Provides options for
+booting
+different Uses
+Verifies
+process:
+Boot Integrity :
+of the boot
+C
+topa
+ΟΥ
+kernels
+the integrity
+121
+CLASSMAte
+Date
+Page
+*
+Comparision and
+Analysis of Different ge
+hene Boot loaders. Di
+org food
+m
+2015
+الدو
+_> GRUB ( Grand Unified Bootloader)on
+10
+Job Advantages : Supports
+27
+रह
+multiple Os,
+flexible configuration, command-line interface
+Complex, set up, may required
+• Disadvantages :
+manual intervention
+620
+LILO C Linux loader) ov
+Advantages: Simple configuration, fastboot
+Disadvantages
+updates
+A Limited features, manual
+needed.
+Levee emr
+Windows Boot Manager
+• Advantages:
+다
+Integrated with windows,
+User friendly, supports
+secure
+• boot.
+Disadvantages : limited dual boot supports,
+restricted
+options.
+入り
+ONE
+Power ON > BIOS
+(From ROM)
+POST
+<2
+Food
+Bootloader (from
+I
+Boot Device)
+kemel
+Operating
+System

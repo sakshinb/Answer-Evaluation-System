@@ -1,0 +1,814 @@
+{% extends "base.html" %}
+
+{% block title %}Results Viewer - Advanced Grading System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .session-selector {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .results-dashboard {
+        display: none;
+    }
+    
+    .metric-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+    
+    .metric-number {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+    
+    .metric-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+    
+    .score-distribution {
+        height: 300px;
+    }
+    
+    .student-details-modal .modal-dialog {
+        max-width: 800px;
+    }
+    
+    .feedback-section {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem;
+        margin: 0.5rem 0;
+    }
+    
+    .strength-item {
+        color: var(--success-color);
+        margin-bottom: 0.5rem;
+    }
+    
+    .weakness-item {
+        color: var(--danger-color);
+        margin-bottom: 0.5rem;
+    }
+    
+    .suggestion-item {
+        color: var(--warning-color);
+        margin-bottom: 0.5rem;
+    }
+    
+    .component-score {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .component-score:last-child {
+        border-bottom: none;
+    }
+    
+    .score-bar {
+        width: 100px;
+        height: 8px;
+        background: #e9ecef;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .score-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.3s ease;
+    }
+    
+    .filter-controls {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .export-section {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Session Selector -->
+<div class="session-selector">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h2><i class="fas fa-chart-line me-2"></i>Results Viewer</h2>
+            <p class="mb-0">View detailed grading results and analytics</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <div class="input-group">
+                <input type="text" class="form-control" id="sessionIdInput" 
+                       placeholder="Enter Session ID">
+                <button class="btn btn-light" type="button" id="loadSessionBtn">
+                    <i class="fas fa-search me-1"></i>Load
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading State -->
+<div id="loadingState" class="text-center py-5" style="display: none;">
+    <div class="loading-spinner mx-auto mb-3" style="width: 50px; height: 50px;"></div>
+    <h5>Loading Results...</h5>
+    <p class="text-muted">Please wait while we fetch the grading data</p>
+</div>
+
+<!-- No Session State -->
+<div id="noSessionState" class="text-center py-5">
+    <i class="fas fa-search fa-4x text-muted mb-3"></i>
+    <h4>No Session Selected</h4>
+    <p class="text-muted">Enter a session ID above to view grading results</p>
+    <div class="mt-4">
+        <a href="{{ url_for('grading_interface') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Start New Grading Session
+        </a>
+    </div>
+</div>
+
+<!-- Results Dashboard -->
+<div id="resultsDashboard" class="results-dashboard">
+    <!-- Summary Metrics -->
+    <div class="row mb-4">
+        <div class="col-md-2">
+            <div class="metric-card">
+                <div class="metric-number" id="totalFiles">0</div>
+                <div class="metric-label">Total Files</div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="metric-card">
+                <div class="metric-number" id="avgScore">0</div>
+                <div class="metric-label">Average Score</div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="metric-card">
+                <div class="metric-number" id="highestScore">0</div>
+                <div class="metric-label">Highest Score</div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="metric-card">
+                <div class="metric-number" id="lowestScore">0</div>
+                <div class="metric-label">Lowest Score</div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="metric-card">
+                <div class="metric-number" id="passRate">0%</div>
+                <div class="metric-label">Pass Rate (≥60)</div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="metric-card">
+                <div class="metric-number" id="excellentRate">0%</div>
+                <div class="metric-label">Excellent (≥90)</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h6><i class="fas fa-chart-bar me-2"></i>Score Distribution</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="scoreDistributionChart" class="score-distribution"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h6><i class="fas fa-chart-pie me-2"></i>Component Analysis</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="componentChart" class="score-distribution"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Filter Controls -->
+    <div class="filter-controls">
+        <div class="row align-items-center">
+            <div class="col-md-3">
+                <label class="form-label">Filter by Score Range:</label>
+                <select class="form-select" id="scoreFilter">
+                    <option value="all">All Scores</option>
+                    <option value="excellent">Excellent (90-100)</option>
+                    <option value="good">Good (75-89)</option>
+                    <option value="average">Average (60-74)</option>
+                    <option value="poor">Poor (0-59)</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Sort by:</label>
+                <select class="form-select" id="sortBy">
+                    <option value="final_score_desc">Final Score (High to Low)</option>
+                    <option value="final_score_asc">Final Score (Low to High)</option>
+                    <option value="name_asc">Student Name (A-Z)</option>
+                    <option value="semantic_desc">Semantic Score</option>
+                    <option value="grammar_desc">Grammar Score</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Search Student:</label>
+                <input type="text" class="form-control" id="studentSearch" 
+                       placeholder="Search by name or filename">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Actions:</label>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-primary btn-sm" id="refreshResults">
+                        <i class="fas fa-sync me-1"></i>Refresh
+                    </button>
+                    <button class="btn btn-success btn-sm" id="exportBtn">
+                        <i class="fas fa-download me-1"></i>Export
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Results Table -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h6><i class="fas fa-table me-2"></i>Detailed Results</h6>
+            <span class="badge bg-primary" id="resultCount">0 results</span>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="resultsTable">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Final Score</th>
+                            <th>Semantic</th>
+                            <th>Rubric</th>
+                            <th>Grammar</th>
+                            <th>Factual</th>
+                            <th>Completeness</th>
+                            <th>Confidence</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Export Section -->
+    <div class="export-section">
+        <h6><i class="fas fa-file-export me-2"></i>Export Options</h6>
+        <div class="row">
+            <div class="col-md-6">
+                <p class="text-muted">Export your grading results in various formats:</p>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-success" id="exportCsv">
+                        <i class="fas fa-file-csv me-2"></i>Export CSV
+                    </button>
+                    <button class="btn btn-info" id="exportSummary">
+                        <i class="fas fa-chart-bar me-2"></i>Export Summary
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="alert alert-info mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Export includes:</strong> All scores, feedback, student information, and detailed analytics
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Student Details Modal -->
+<div class="modal fade" id="studentDetailsModal" tabindex="-1">
+    <div class="modal-dialog student-details-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-user me-2"></i>
+                    <span id="modalStudentName">Student Details</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="exportStudentReport">
+                    <i class="fas fa-download me-2"></i>Export Report
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden data -->
+<input type="hidden" id="currentSessionId" value="">
+<input type="hidden" id="currentResults" value="">
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentSessionId = '';
+let allResults = [];
+let filteredResults = [];
+let scoreChart = null;
+let componentChart = null;
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    setupEventListeners();
+    
+    // Check if session ID is provided in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionId = urlParams.get('session');
+    if (sessionId) {
+        document.getElementById('sessionIdInput').value = sessionId;
+        loadSession(sessionId);
+    }
+});
+
+function setupEventListeners() {
+    document.getElementById('loadSessionBtn').addEventListener('click', () => {
+        const sessionId = document.getElementById('sessionIdInput').value.trim();
+        if (sessionId) {
+            loadSession(sessionId);
+        } else {
+            showAlert('Please enter a session ID', 'warning');
+        }
+    });
+    
+    document.getElementById('sessionIdInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            document.getElementById('loadSessionBtn').click();
+        }
+    });
+    
+    document.getElementById('scoreFilter').addEventListener('change', applyFilters);
+    document.getElementById('sortBy').addEventListener('change', applyFilters);
+    document.getElementById('studentSearch').addEventListener('input', applyFilters);
+    document.getElementById('refreshResults').addEventListener('click', () => loadSession(currentSessionId));
+    document.getElementById('exportBtn').addEventListener('click', exportResults);
+    document.getElementById('exportCsv').addEventListener('click', exportResults);
+    document.getElementById('exportSummary').addEventListener('click', exportSummaryReport);
+}
+
+function loadSession(sessionId) {
+    if (!sessionId) return;
+    
+    currentSessionId = sessionId;
+    document.getElementById('currentSessionId').value = sessionId;
+    
+    // Show loading state
+    showLoadingState();
+    
+    fetch(`/get_results/${sessionId}`)
+        .then(response => response.json())
+        .then(data => {
+            hideLoadingState();
+            
+            if (data.success) {
+                allResults = data.results;
+                document.getElementById('currentResults').value = JSON.stringify(allResults);
+                displayResults(data);
+                showResultsDashboard();
+            } else {
+                showNoSessionState();
+                showAlert('Failed to load results: ' + data.message, 'danger');
+            }
+        })
+        .catch(error => {
+            hideLoadingState();
+            showNoSessionState();
+            console.error('Error:', error);
+            showAlert('Failed to load session data', 'danger');
+        });
+}
+
+function showLoadingState() {
+    document.getElementById('loadingState').style.display = 'block';
+    document.getElementById('noSessionState').style.display = 'none';
+    document.getElementById('resultsDashboard').style.display = 'none';
+}
+
+function hideLoadingState() {
+    document.getElementById('loadingState').style.display = 'none';
+}
+
+function showNoSessionState() {
+    document.getElementById('noSessionState').style.display = 'block';
+    document.getElementById('resultsDashboard').style.display = 'none';
+}
+
+function showResultsDashboard() {
+    document.getElementById('noSessionState').style.display = 'none';
+    document.getElementById('resultsDashboard').style.display = 'block';
+}
+
+function displayResults(data) {
+    const summary = data.summary;
+    const results = data.results.filter(r => !r.processing_failed);
+    
+    // Update summary metrics
+    document.getElementById('totalFiles').textContent = summary.total_files;
+    document.getElementById('avgScore').textContent = summary.average_score;
+    document.getElementById('highestScore').textContent = summary.highest_score;
+    document.getElementById('lowestScore').textContent = summary.lowest_score;
+    
+    // Calculate pass rates
+    const passCount = results.filter(r => r.final_score >= 60).length;
+    const excellentCount = results.filter(r => r.final_score >= 90).length;
+    const passRate = results.length > 0 ? Math.round((passCount / results.length) * 100) : 0;
+    const excellentRate = results.length > 0 ? Math.round((excellentCount / results.length) * 100) : 0;
+    
+    document.getElementById('passRate').textContent = passRate + '%';
+    document.getElementById('excellentRate').textContent = excellentRate + '%';
+    
+    // Create charts
+    createScoreDistributionChart(results);
+    createComponentChart(results);
+    
+    // Apply initial filters
+    filteredResults = results;
+    applyFilters();
+}
+
+function createScoreDistributionChart(results) {
+    const ctx = document.getElementById('scoreDistributionChart').getContext('2d');
+    
+    // Create score ranges
+    const ranges = {
+        'Excellent (90-100)': 0,
+        'Good (75-89)': 0,
+        'Average (60-74)': 0,
+        'Poor (0-59)': 0
+    };
+    
+    results.forEach(result => {
+        const score = result.final_score;
+        if (score >= 90) ranges['Excellent (90-100)']++;
+        else if (score >= 75) ranges['Good (75-89)']++;
+        else if (score >= 60) ranges['Average (60-74)']++;
+        else ranges['Poor (0-59)']++;
+    });
+    
+    if (scoreChart) scoreChart.destroy();
+    
+    scoreChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(ranges),
+            datasets: [{
+                label: 'Number of Students',
+                data: Object.values(ranges),
+                backgroundColor: [
+                    '#27ae60',
+                    '#3498db',
+                    '#f39c12',
+                    '#e74c3c'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+}
+
+function createComponentChart(results) {
+    const ctx = document.getElementById('componentChart').getContext('2d');
+    
+    // Calculate average scores for each component
+    const components = ['semantic_score', 'rubric_score', 'grammar_score', 'factual_score', 'completeness_score'];
+    const averages = components.map(component => {
+        const sum = results.reduce((acc, result) => acc + result[component], 0);
+        return results.length > 0 ? sum / results.length : 0;
+    });
+    
+    if (componentChart) componentChart.destroy();
+    
+    componentChart = new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: ['Semantic', 'Rubric', 'Grammar', 'Factual', 'Completeness'],
+            datasets: [{
+                label: 'Average Scores',
+                data: averages,
+                backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                borderColor: '#3498db',
+                borderWidth: 2,
+                pointBackgroundColor: '#3498db'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+}
+
+function applyFilters() {
+    const scoreFilter = document.getElementById('scoreFilter').value;
+    const sortBy = document.getElementById('sortBy').value;
+    const searchTerm = document.getElementById('studentSearch').value.toLowerCase();
+    
+    // Filter results
+    filteredResults = allResults.filter(result => {
+        if (result.processing_failed) return false;
+        
+        // Score filter
+        const score = result.final_score;
+        let scoreMatch = true;
+        
+        switch (scoreFilter) {
+            case 'excellent':
+                scoreMatch = score >= 90;
+                break;
+            case 'good':
+                scoreMatch = score >= 75 && score < 90;
+                break;
+            case 'average':
+                scoreMatch = score >= 60 && score < 75;
+                break;
+            case 'poor':
+                scoreMatch = score < 60;
+                break;
+        }
+        
+        // Search filter
+        const studentName = (result.student_info?.name || result.filename).toLowerCase();
+        const searchMatch = searchTerm === '' || studentName.includes(searchTerm);
+        
+        return scoreMatch && searchMatch;
+    });
+    
+    // Sort results
+    filteredResults.sort((a, b) => {
+        switch (sortBy) {
+            case 'final_score_desc':
+                return b.final_score - a.final_score;
+            case 'final_score_asc':
+                return a.final_score - b.final_score;
+            case 'name_asc':
+                const nameA = (a.student_info?.name || a.filename).toLowerCase();
+                const nameB = (b.student_info?.name || b.filename).toLowerCase();
+                return nameA.localeCompare(nameB);
+            case 'semantic_desc':
+                return b.semantic_score - a.semantic_score;
+            case 'grammar_desc':
+                return b.grammar_score - a.grammar_score;
+            default:
+                return b.final_score - a.final_score;
+        }
+    });
+    
+    updateResultsTable();
+}
+
+function updateResultsTable() {
+    const tbody = document.getElementById('resultsTableBody');
+    const resultCount = document.getElementById('resultCount');
+    
+    resultCount.textContent = `${filteredResults.length} results`;
+    
+    tbody.innerHTML = '';
+    
+    filteredResults.forEach((result, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>
+                <div>
+                    <strong>${result.student_info?.name || 'Unknown'}</strong>
+                    <br>
+                    <small class="text-muted">${result.filename}</small>
+                </div>
+            </td>
+            <td>${formatScore(result.final_score)}</td>
+            <td>${result.semantic_score.toFixed(1)}</td>
+            <td>${result.rubric_score.toFixed(1)}</td>
+            <td>${result.grammar_score.toFixed(1)}</td>
+            <td>${result.factual_score.toFixed(1)}</td>
+            <td>${result.completeness_score.toFixed(1)}</td>
+            <td>
+                <span class="badge ${result.confidence_score > 0.8 ? 'bg-success' : result.confidence_score > 0.6 ? 'bg-warning' : 'bg-danger'}">
+                    ${(result.confidence_score * 100).toFixed(0)}%
+                </span>
+            </td>
+            <td>
+                <button class="btn btn-sm btn-outline-primary" onclick="showStudentDetails(${index})">
+                    <i class="fas fa-eye me-1"></i>Details
+                </button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function showStudentDetails(index) {
+    const result = filteredResults[index];
+    const modal = new bootstrap.Modal(document.getElementById('studentDetailsModal'));
+    
+    document.getElementById('modalStudentName').textContent = 
+        result.student_info?.name || result.filename;
+    
+    const modalBody = document.getElementById('modalBody');
+    modalBody.innerHTML = `
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Score Breakdown</h6>
+                <div class="component-score">
+                    <span>Final Score</span>
+                    <div>
+                        <span class="fw-bold">${result.final_score.toFixed(1)}</span>
+                        <div class="score-bar ms-2">
+                            <div class="score-fill bg-primary" style="width: ${result.final_score}%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="component-score">
+                    <span>Semantic Understanding</span>
+                    <div>
+                        <span>${result.semantic_score.toFixed(1)}</span>
+                        <div class="score-bar ms-2">
+                            <div class="score-fill bg-info" style="width: ${result.semantic_score}%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="component-score">
+                    <span>Rubric Coverage</span>
+                    <div>
+                        <span>${result.rubric_score.toFixed(1)}</span>
+                        <div class="score-bar ms-2">
+                            <div class="score-fill bg-success" style="width: ${result.rubric_score}%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="component-score">
+                    <span>Grammar & Style</span>
+                    <div>
+                        <span>${result.grammar_score.toFixed(1)}</span>
+                        <div class="score-bar ms-2">
+                            <div class="score-fill bg-warning" style="width: ${result.grammar_score}%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="component-score">
+                    <span>Factual Accuracy</span>
+                    <div>
+                        <span>${result.factual_score.toFixed(1)}</span>
+                        <div class="score-bar ms-2">
+                            <div class="score-fill bg-danger" style="width: ${result.factual_score}%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="component-score">
+                    <span>Completeness</span>
+                    <div>
+                        <span>${result.completeness_score.toFixed(1)}</span>
+                        <div class="score-bar ms-2">
+                            <div class="score-fill bg-secondary" style="width: ${result.completeness_score}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <h6>Statistics</h6>
+                <ul class="list-unstyled">
+                    <li><strong>Word Count:</strong> ${result.word_count}</li>
+                    <li><strong>Sentence Count:</strong> ${result.sentence_count}</li>
+                    <li><strong>Technical Terms:</strong> ${result.technical_terms_found}</li>
+                    <li><strong>Grammar Issues:</strong> ${result.grammar_issues}</li>
+                    <li><strong>Confidence:</strong> ${(result.confidence_score * 100).toFixed(1)}%</li>
+                    <li><strong>Processing Time:</strong> ${result.processing_time.toFixed(2)}s</li>
+                </ul>
+            </div>
+        </div>
+        
+        <hr>
+        
+        <div class="row">
+            <div class="col-12">
+                <h6>Feedback</h6>
+                
+                ${result.strengths.length > 0 ? `
+                <div class="feedback-section">
+                    <h6 class="text-success"><i class="fas fa-thumbs-up me-2"></i>Strengths</h6>
+                    ${result.strengths.map(strength => `<div class="strength-item"><i class="fas fa-check me-2"></i>${strength}</div>`).join('')}
+                </div>
+                ` : ''}
+                
+                ${result.weaknesses.length > 0 ? `
+                <div class="feedback-section">
+                    <h6 class="text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Areas for Improvement</h6>
+                    ${result.weaknesses.map(weakness => `<div class="weakness-item"><i class="fas fa-times me-2"></i>${weakness}</div>`).join('')}
+                </div>
+                ` : ''}
+                
+                ${result.suggestions.length > 0 ? `
+                <div class="feedback-section">
+                    <h6 class="text-warning"><i class="fas fa-lightbulb me-2"></i>Suggestions</h6>
+                    ${result.suggestions.map(suggestion => `<div class="suggestion-item"><i class="fas fa-arrow-right me-2"></i>${suggestion}</div>`).join('')}
+                </div>
+                ` : ''}
+            </div>
+        </div>
+    `;
+    
+    modal.show();
+}
+
+function exportResults() {
+    if (!currentSessionId) {
+        showAlert('No session loaded', 'warning');
+        return;
+    }
+    
+    window.location.href = `/export_results/${currentSessionId}`;
+}
+
+function exportSummaryReport() {
+    if (!allResults.length) {
+        showAlert('No results to export', 'warning');
+        return;
+    }
+    
+    // Create summary data
+    const summary = {
+        session_id: currentSessionId,
+        total_files: allResults.length,
+        successful_gradings: allResults.filter(r => !r.processing_failed).length,
+        average_score: allResults.reduce((sum, r) => sum + (r.final_score || 0), 0) / allResults.length,
+        score_distribution: {
+            excellent: allResults.filter(r => r.final_score >= 90).length,
+            good: allResults.filter(r => r.final_score >= 75 && r.final_score < 90).length,
+            average: allResults.filter(r => r.final_score >= 60 && r.final_score < 75).length,
+            poor: allResults.filter(r => r.final_score < 60).length
+        }
+    };
+    
+    // Download as JSON
+    const blob = new Blob([JSON.stringify(summary, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `grading_summary_${currentSessionId.substring(0, 8)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    showAlert('Summary report downloaded', 'success');
+}
+</script>
+{% endblock %}

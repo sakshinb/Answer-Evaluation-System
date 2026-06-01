@@ -1,0 +1,147 @@
+clASSMAte
+Date,
+Page
+Srivaths Tyex
+Div:- B
+Roll no:- 39
+PRN-202201040076
+Q1 The 2
+2 Operating System are :-
+①Hindows ②Linux !
+- Similarities
+Both OS Support multitasking increasing
+efficiency of Systems. Due to this users
+are able
+to perform various tasks without waiting for
+one to finish.
+3 Both of them have highly secured mechanisms
+authentication, firewall, encryption etc restricting
+like
+unauthorized accesskend
+baddd; 3] Both of them have an hierarchial file managemen
+Tpt (which organizes the files into directories.
+enabling users to create, delete, and update.
+filescu tot
+4] Both, Windows and Linux support network
+capabilities and allows users to connect to
+MAN and WAN. They support, TCP/IP protocol
+Gso that users. can share files through
+internet handl
+5] Since
+G
+both of them provide a GUI, which
+helps to it to become user-
+lord the users
+Biendly fox
+80
+Date
+Page
+classmate
+redlovic2
+PE
+-Differences
+Kernel Architecture
+Windows :- Uses both monolithic and
+microservices architecture making it a
+hybrids on enlouds popkorno boll
+Linux :- Uses a monolithic kernel where all
+services run in Kernel
+File System Support
+Windows : Uses NTFS (New Technology
+To file System) supporting file encryption, large
+file size etc
+den Linux et Multiple lile Bystems like ext 4, XFS
+of and etc are used here nedbo 20
+3] System Resourcement, Management unau
+emporioa el chindows: Manages resources through Windows
+color Task Manager which is relied on GUI for
+Than System Imonitoring crew paildon
+Linux:- Using CI and commands like top,
+Troonblop and pg resource management is done.
+4] Software Installation and Package Management
+orolog 91195 Windows in Commonly done through executable
+Jodl da
+dard files C.exe)os
+Linux - Uses package managers like
+opt to handle installations la
+dod
+5 CLIned to gled
+yum,
+Windows :- Offers CMID and powershell providing
+Scripting capabilities, but less powerful compared
+to Linux CLI
+Linux - Uses
+Basb
+as
+default shell, more
+powerfull and versatile since it has variety
+of
+commanda
+classmate
+Date
+Pogle
+82 Bootloader's Booting Process
+1 Bootloader is excial compoment in 08 since
+it is responsible for bading OS kernel into
+memory and initializing system
+[2] It typically sung offer the BIOS performs
+checks and passes bootloader
+and one
+checks and
+49
+phool 3] The bootloader then locates the os kernel
+loading it kernel memory and executed it
+ea enabling it start up fully
+pupill Linuse kernel Booting:- h
+System Startup
+BIOS
+MARGRUB
+Bootloader
+Run
+was INIT
+Kernel Unit
+that level haftalary
+Different Bootloaders :-
+O GRUB L 13613
+→ It is a highly flexible and powerful
+bootloader in Linuse Supports multiple
+operating systems, allowing
+users to choose
+with powerhal
+of kernels
+range
+Advantages:- Highly customizable
+command line. Supports wide
+Disadvantages:- Configuring it is
+task for beginners. Potential for more
+during updates
+a complex
+CLASSMAte
+Date
+Page
+LILO
+oboul food
+Older Bootloader primarily used for
+older linux distributions
+→It is straightforward loading Linux
+2015 kernel from specified locations
+Advantages :- Simple to configure and hence
+"making it easy to use. Directly loods
+Linux kernel
+kernel on
+Disadvantages:- Limited support for modern
+file systems
+and larger disks, reducing
+utility. No Support for boot time
+modifications 2017
+③ Windows Boot Manager
+2018
+2
+Advantages : - Seamless integration with
+windows os Supports windows specific features
+like
+Bitlocker etc
+Disadvantages: - Limited to Windows environment
+with minimal support for non- Windows os.
+Flexible than GRUB
+Less

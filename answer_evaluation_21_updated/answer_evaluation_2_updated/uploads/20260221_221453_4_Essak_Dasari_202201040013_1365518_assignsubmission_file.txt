@@ -1,0 +1,222 @@
+Name: Essak Dasari
+Roll no 5
+PRN
+Riv
+202201040013
+B
+*
+-Operating System - IA-1 *
+Q.1] Similarities Defined:
+Ans Similarities.
+perform
+30/8/2024
+classmate
+Date
+Page
+Operating Systems
+in How various Ope
+core functions --
+17 Resource Management - All operating Syston
+manage hardware resources line CPU, memory,
+and storage to
+ensure
+efficient use and
+a
+user
+prevent conflicts between applications.
+27 User Interface - They provide
+interface (UI), either graphical (GUI) or
+command-line (CLI), allowing wers to interced
+the Systons and execute commands
+with
+8) File
+a
+System Management - Operating system,
+organike, store, and retrieve data using
+file system, enabling users and aprication
+access files in a orderly manner
+(4) Security and Access control -
+Security policies, such
+to
+as
+Oss enforce
+user authentication
+to protect data and prevent
+and permissions to protect
+unauthorized access.
+2.1] Differences :-
+Ans: 5 Difference in how various Operating Systems
+Perform
+core functions:-
+1) System Architecture and Kernel Design -
+Different OS, Ce.g. Windows. with a monolithic
+Kemel, Linux with a modellar kernel) have
+varying approaches to
+impacting performance; stability
+flexibility
+Kemel design,
+Land
+classmate
+Page
+2) Compatibility. and Software
+Ecosystems -
+and application.
+a wide range of
+The availability of software
+vantes; Windows supports.
+Commercial software, while Linux emphasizes
+open-source software, affecting.
+and user choice.
+experience
+3) Customization
+and Flexibility
+the developer
+• extensive customization options.
+offers extensive
+open-source nature, allowing wers and
+developers to modify the
+and Windows
+Customization
+1
+Linux
+cend
+while macOS
+in
+Linux and
+the OS,
+Cre
+more
+restrictive
+4) Security Approaches
+macOS
+are generally considered more
+Secure by design due to
+based
+more
+due to their unix.
+architecture, while windows require
+third-party
+frequent updates and
+antivirus Software for Security, influencing
+how developers approach security in their
+applications! I
+in
+0.27 Understanding of Bootleader functions --
+Ansi A bootloader
+is
+a
+small program that is
+is
+executed immediating after a computer P
+or restarted, its primary function
+powered on or restarted.
+the operating system kemel
+into the memory and transfer control
+is
+to load
+to it.
+> BIOS / VEEI initialization: The bootlocedr
+first interacts with the
+System (BIOS)
+interface (UEFI) to
+Basic input/output
+состе
+or unified Exthsible firm wo
+Initialize hardware
+Date
+Page
+clASSMATE
+and Load the bootluader itself
+Components and
+2) Handware Detection and configuration
+and configures
+It
+detects
+such as
+devices,
+and display, to
+use
+3) Boot
+-
+Configures hardware
+hard drive; keyboard
+ensure they are ready to
+the
+Devele Selections :-
+defermines the
+The bootloader
+boot device (e.g., hard drive
+USB' drive) from which the operating. Opsyter
+well be
+loaded
+This
+based
+on
+a
+boot
+BIOS/UEFI settings.
+can be
+Selection can
+order specifled in the
+4) Leading the Operating System kerrel":
+The
+bootloader
+hemel from the
+reads the operating
+selected
+loads into memory.
+5) Transfer to catrol:
+Operating System
+boot device and
+Once
+the kernel is
+loaded, the bootloader transfers controls
+nloaded i
+to it.
+inter
+Reset or
+Power ON
+Bootloader
+condition!
+Y
+Bootloader
+N
+D/Application
+Code
+classmate
+Date
+Page
+2.27 Comparision and Analyste of Different
+Bootloaders.
+Anjo
+Feature
+GRUB
+LILO
+> Configuration
+Highly
+1 Configurable
+Limited
+configuration
+27 Operating
+System
+Support
+Multiple
+Primarily
+Linux
+3) UEFI Support
+Yes.
+No
+4> complexity
+Complex
+Simple
+GRUB ; Highly configurable and customizable
+Can be
+experienced
+complex to configure, for Less
+users.
+LILO :- Easy to install and, configure compared
+to
+GRUB
+Does not support as many filesystems or
+operating Systems
+as GRUB

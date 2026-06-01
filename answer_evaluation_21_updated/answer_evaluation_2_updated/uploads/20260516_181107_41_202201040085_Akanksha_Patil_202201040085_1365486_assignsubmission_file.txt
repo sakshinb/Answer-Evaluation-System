@@ -1,0 +1,216 @@
+clASSMATE
+Date
+Page,
+PRN - 20220 1040085 verwell
+Name - Akanksha Sandip Patil 6
+Roll no :- 44/col
+(a1) Operating system act as the intermedistiry between
+them
+computer interferance interface, user
+tugma of computer and computer hardware.
+0
+Similarites
+10 ba
+4169
+11 Resource Management :. Both Window and Linux manag
+2)
+3)
+hardware resources
+like & UPV, memory
+to optimize performance. They
+algorithms to prioritize tasks
+of resources.
+and 110 devices
+use & cheduling,
+ensure efficient
+User Interface: Windows and Linux both
+Use
+Y
+line interfaces (Git ((LIS) for more advanced
+tasks.
+use along with command-
+file System: Both Windows and Linux support
+hierarchical file systems. It ensure the
+systems
+security of files store in directories. Linux
+also support multiple files and give permission.
+to
+access.
+Security Features: Both have buitin decority features
+Such as
+User
+authentication and lacess
+control. Encryption and other technologies
+ace
+used
+threats.
+to protect files from virus and
+Date
+clASSMAte
+Page
+5) Networking: Both allow you to connect to other
+computeres and internet, using: standard methods
+like TCP/IP I providing tools to proted
+those connections
+IL
+Differances
+ClASSMATE
+Date
+Page
+can
+Broad A
+1) Source Code and Licensing - In Linux open-source
+with it's source codal freely available. Users
+modity, distributer undere various licenses.
+In Windows closed-source proprietary code
+by Microsoft!. User cannot access
+the source code, pribed
+21
+3)
+(u)
+5)
+owned
+or
+file
+has
+modity
+File System Support :- In. Linux support multiple
+systems such as extu, XFs. It also
+good, compatibility. In Windows
+use NTFS, with some support for
+FAT32 and exFAT
+and exFAT. It does not support linux
+. primarity
+System
+Software Installation and Management :- In
+Linux uses package manages for software
+updates. In Windows
+on executable installers (.exe) or
+installation
+relies
+package managers like Window store for
+applications
+System Customization and Control :- In
+Linux highly cutomized with aciens to
+system internals. In Windows offers limited
+Cutomization compared to linux.
+Command Line Interface Usage :- In linux the
+of
+CLI
+is
+a
+powerful and integral part
+the system
+system - In Windows has Command
+system
+Prompt & Powershell.
+clASSMAte
+Date
+Page
+2-
+91
+wave
+Function of the Bootloader.
+A bootloader
+De in
+is
+a
+small
+prage
+um that is
+responsible for loading the operating system
+into memory when a computer is
+powered on or restarted.
+chives It acts as a bridge between the
+firmware and the 05m
+wow
+Ⓒ loading as kernel
+OS kernel - The bootloader locates the
+on the
+kernel
+storage device, louck
+and transfers control to
+stefflame it ng into sumemory
+hile it allowing: 050 to start up..
+Passing Parameters, The bootloader can pass
+parameter to the OS kernel, which can
+his modify how the A. OS starts, or operate.
+Initiali Hardware
+the
+ensun
+Mouse.
+-
+The bootloader initiatie
+hardware components of the computer
+all nessary devices are of
+Comparision of different bootloaders
+1] GRUB (GRand Unified, Bootloader)ing
+•
+ready for
+It supports multiple operating systems and
+kernel's
+Provides or powerful command line interface
+high configurable
+el
+with support for scripting.
+hi
+Advantages of boragman
+versable, widely used, offers extensive suppor,
+"allows easy I recovery
+20
+classmate
+Date
+Page
+3]
+Disadvantages
+• Can be complex to configure
+2] LILO (Linux Loadder)
+.
+P
+9
+9
+Older bootloader for Linux, now
+GRUB
+Simple file configuration
+replaced by
+load's Linux kernel directly from location,
+Advantages - simplex, faster than GRUB
+works well for single boot linux systems.
+It
+Disadvantages :-
+Limited in features
+Requires reinstallation if change mode
+Do not duppory many
+file System
+Windows Bool
+Boot Manager
+bootloader
+The default bootboocht for windows operating system
+Supports multi-bat configuration
+with
+Integrate tightly boots.
+tools and
+Advantage
+Windous recov
+recovery
+seamlessly integrated with window OS & VEFI
+decuse
+Boot
+Simple to
+Disadvantages
+use for typical windows users.
+Lacks flexibity and configurability
+Support for
+Limited
+Ron Windows OS
+пор
+Diagran
+Power on
+we Bros/wifi
+[Bros / wifi \
+[ GRUB
+I
+Bootloader
+Los kernel
+and tool Operatio
+Operating System

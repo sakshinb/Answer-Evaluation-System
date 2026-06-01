@@ -1,0 +1,281 @@
+PAGE NO
+Name:- mand UK Viraj Rajendra
+ROU
+53.
+DIV
+B (B3)
+PRN 202201040102
+PAGE NO.
+DATE:
+(1-1) +
+Ans:- features
+Batch
+Similarites/ Processing
+multi-user
+OS.
+Differences
+03
+Job
+Exentes
+Allows multiple
+Execution
+a
+one job at
+time
+usety to exfute
+③ Input/output Jobs are
+Combined into
+batches &
+jobs simultanea
+sly
+Usery intereact
+directly with
+the system
+processed
+for
+Input/
+sequentially
+Output
+(3)
+User Intereaction minimal
+Reguides
+Uber
+frequent user
+intereaction.
+intereaction
+3) Resource
+Allocates
+manages
+managment
+Jesources to
+a single job
+at a time
+resources for
+multiple usedy.
+efficiently.
+⑤Task Scheduling uses a first-
+come-first-
+Serve schedung scheduling
+Employs
+vadiovy
+algorithm
+algorithms.
+Round
+Robin
+Similarities
+between
+multi-used
+PAGE NO.
+DATE:
+Batch Processing
+03
+$feature
+Batch Processing
+mori - used
+03
+03.
+Job
+& ecotes
+one
+Allows multiple
+Execution.
+job at a time.
+Usots
+to
+exelotej
+simultaneously
+065
+Input/
+output.
+Joby ase combined usery interea of
+into hatches
+processed
+sequon tially
+directly with
+syust em
+em fo
+Task
+Scheduling
+Uses a (FCFS)
+algorithm.
+Input/outpy.
+Round-tobin
+9190ithm
+System
+Both ely
+On
+a
+Kernel to
+Code
+manage
+system resources
+8. process9.
+PAGE NO.
+DATE:
+O Implicationy for Usedy
+rsoressing
+& Developedy-
+may expedience longer wail times
+to be processed
+Batch
+。 usery:
+For
+Joby
+that can
+be exerated in a
+Their
+O Developers: Need to design application y
+batch environment.
+multi-user
+O users:
+can
+Gccess & use the we
+Simultaneously, improving
+productivity
+цучают
+o Developedis: Need
+fados
+معانا
+to
+convided
+concurrency,
+Synchronization, & security
+when designing
+applicatory
+PAGE NO.
+DATE:
+executed
+On
+0.21
+Ans: The Boot loadery Role in Os Brot Process
+8- A boot loodet
+that is
+in powered
+a renal program
+when a computed
+testatlig · Ity
+of
+primary function is
+to lood
+05
+Kednel into
+into memory
+the
+initate
+the
+500k
+Several
+ptoress. This involves
+© Dowed - On Self-Test (POST): The
+Key steps.
+bootloader
+componenty
+enyuse
+they
+correctly
+checke
+the hardwoLe
+the computet
+to
+One functioning
+②Basic input 10UY Dox System (Bios):-
+The BIOS
+stored
+of UEFI, which is
+On
+ma
+non-volatile memory
+Chip Rom)
+③ Bootload of loading:- The bootloader
+loaded & intialized
+the specified
+into memory
+is loaded from
+hoot
+device
+④ kernel Initialization:- The kernel
+I intralizes the system hardware,
+sets up memory managment &
+states the
+Os processes.
+ОИЗОЛЯ
+TAG
+comparision of different.
+GRUB
+PAGE NO.
+DATE:
+Boot loaded is
+Grand Unified Boot loaded,
+• features: highly configurable, supporty
+multiple os.
+Advantages :- Flexible, versitile & widely
+cused
+Disadvantages:- can be complex to
+configure for less
+Usedy
+☹ LILO (Linux loader)
+9
+b
+0
+expenlied
+features: - Simple & lightweight, primarily
+8
+designed for Linux systems.
+Advantages:- Easy to use & understand,
+for smaller systems
+Diy advantages:- less flexible than GRUB
+Suitable
+8
+may not
+windowy
+support as many
+feature.
+Boot managed:-"
+• feat odes: Integrated
+with windowy
+the os
+to boot.
+Os, provide, a graphical Interface
+For
+selecting
+• Advantages: used freindly, easy to
+use for windo by Usody.
+ST
+• Disadvantages: Primarily designed for
+windows envisonmenty and
+may not
+he as
+other as.
+Flexible
+for
+ОИЗОЛЯ
+STAC
+PAGE NO.
+DATE:
+0
+O Computer Booting process:-
+Do wet
+ON
+Load BIOS,
+UEFI
+Probe windowyl
+Start inlop as
+PIDL
+Ejecule
+Start script
+Instatinate Kernel
+data struckre
+Running
+Systems.
+load Keand
+↑
+Determine which
+Select
+device
+Boot
+Kernel to back.
+Identify EFI
+Syytem
+Load boot
+loader
+Eg GRUB
